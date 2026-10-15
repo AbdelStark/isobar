@@ -1,8 +1,9 @@
 .PHONY: setup check test build serve
 
 setup:
-	uv sync --locked
 	cd web && npm ci
+	cd web && npm run build
+	uv sync --locked
 
 check:
 	uv lock --check

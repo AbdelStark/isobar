@@ -55,7 +55,7 @@ The batch checkpoint is atomically updated after each completed run. Repeating t
 
 ## Build and test
 
-`make check` runs Python lint, formatting, types, tests, frontend unit tests and the production build. `make build` creates a source archive and wheel with bundled static assets. A wheel installation needs Python and its runtime dependencies, not Node. `make serve` uses the built workbench, not Vite's development server.
+`make setup` installs frontend dependencies and builds static assets before installing the Python package: the package includes those assets, even in editable mode. `make check` runs Python lint, formatting, types, tests, frontend unit tests and the production build. `make build` creates a source archive and wheel with bundled static assets. A wheel installation needs Python and its runtime dependencies, not Node. `make serve` uses the built workbench, not Vite's development server.
 
 Four real-server browser tests are authored in `web/tests/workbench.spec.ts`; final execution is pending. They cover replay/view boundaries, branching/comparison/export, invalid JSON and text safety, private export denial, narrow viewport and keyboard access. They are not a substitute for screen-reader testing or a human study.
 

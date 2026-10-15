@@ -12,7 +12,6 @@ Use Python 3.12, Node 24 and `uv`. Dependencies are locked. Setup needs package-
 
 ```sh
 make setup
-make build
 make serve
 ```
 
