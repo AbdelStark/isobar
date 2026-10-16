@@ -7,8 +7,16 @@ name = "isobar-sim"
 version = "0.1.0"
 description = "An inspectable simulation laboratory for AI governance"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["agent-based-modeling", "ai-governance", "game-theory", "simulation"]
 requires-python = ">=3.12"
 dependencies = ["pydantic>=2.12,<3"]
+
+[project.urls]
+Repository = "https://github.com/AbdelStark/isobar"
+Documentation = "https://github.com/AbdelStark/isobar#readme"
+Issues = "https://github.com/AbdelStark/isobar/issues"
 
 [project.scripts]
 isobar = "isobar.cli:main"
@@ -26,7 +34,7 @@ packages = ["src/isobar"]
 include = ["/src", "/tests", "/docs", "/web/src", "/web/public", "/web/tests", "/web/scripts",
            "/web/index.html", "/web/package.json", "/web/package-lock.json",
            "/web/tsconfig.json", "/web/vite.config.ts", "/web/playwright.config.ts",
-           "/README.md", "/CONTRIBUTING.md", "/SECURITY.md", "/Makefile",
+           "/README.md", "/LICENSE", "/CONTRIBUTING.md", "/SECURITY.md", "/Makefile",
            "/pyproject.toml", "/uv.lock", "/.python-version", "/.github/workflows",
            "/AGENTS.md", "/.agents/skills", "/scripts"]
 

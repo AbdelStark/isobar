@@ -1,7 +1,7 @@
 # MVP implementation contract
 
 Status: implemented; software acceptance is tracked in [the acceptance record](acceptance.md).
-Synthetic, uncalibrated research software. Private repository; no embedded private
+Synthetic, uncalibrated research software, distributed under the MIT license; no embedded private
 company documents or organization-specific mechanisms. A local-only adapter can map
 a private design using generic parameters without publishing that mapping.
 

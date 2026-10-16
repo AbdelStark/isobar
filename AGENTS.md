@@ -1,6 +1,6 @@
 # Working in Isobar
 
-Isobar is a private, local simulation workbench for conditional AI-governance questions.
+Isobar is an MIT-licensed, local simulation workbench for conditional AI-governance questions.
 Read [the MVP contract](docs/mvp-contract.md) for scope and interfaces and
 [the acceptance record](docs/acceptance.md) for verified behavior and remaining boundaries.
 Synthetic fixture success is implementation evidence, never empirical policy validation.
