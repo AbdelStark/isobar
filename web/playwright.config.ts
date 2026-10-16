@@ -5,7 +5,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   timeout: 60_000,
-  reporter: 'list',
+  forbidOnly: !!process.env.CI,
+  reporter: [['list'], ['html', {open: 'never'}]],
   use: {
     baseURL: 'http://127.0.0.1:4318',
     browserName: 'chromium',
@@ -17,6 +18,6 @@ export default defineConfig({
   webServer: {
     command: 'uv run --project .. isobar serve --port 4318',
     url: 'http://127.0.0.1:4318/api/health',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
 });

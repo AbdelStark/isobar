@@ -57,6 +57,18 @@ The batch checkpoint is atomically updated after each completed run. Repeating t
 
 `make setup` installs frontend dependencies and builds static assets before installing the Python package: the package includes those assets, even in editable mode. `make check` runs Python lint, formatting, types, tests, frontend unit tests and the production build. `make build` creates a source archive and wheel with bundled static assets. A wheel installation needs Python and its runtime dependencies, not Node. `make serve` uses the built workbench, not Vite's development server.
 
-Four real-server browser tests are authored in `web/tests/workbench.spec.ts`; final execution is pending. They cover replay/view boundaries, branching/comparison/export, invalid JSON and text safety, private export denial, narrow viewport and keyboard access. They are not a substitute for screen-reader testing or a human study.
+Run `make browser-setup` once to install Chromium, then `make check-browser` for the
+real-server browser suite. Stop your own server on 4318 before running it; the suite
+starts a fresh process and refuses to reuse an unknown server. The tests cover all
+six presets, replay/view boundaries, branching/comparison/export, invalid JSON and
+text safety, private export denial, network failure recovery, keyboard playback and
+desktop/mobile accessibility scans. Reports are in `web/playwright-report/`;
+screenshots, scans and failure traces are in `web/test-results/`.
+
+`make check-package` builds a fresh source archive and wheel, installs the wheel and
+locked runtime dependencies outside the checkout, and checks CLI cancellation/resume,
+branching, comparison, export/replay and bundled HTTP assets. `make verify` runs all
+checks used by CI. These checks do not substitute for screen-reader testing or a
+human study.
 
 Do not expose the server publicly. There are no accounts, permissions for remote users or production-server guarantees. See [SECURITY.md](../SECURITY.md).

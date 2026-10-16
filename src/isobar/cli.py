@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.output:
                 if args.output.exists():
                     raise FileExistsError("Output already exists; choose a new path.")
-                atomic_json(args.output, data)
+                atomic_json(args.output, data, overwrite=False)
             else:
                 print(json.dumps(data, indent=2))
         elif args.command == "validate":
@@ -117,7 +117,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.output:
                 if args.output.exists():
                     raise FileExistsError("Output already exists; choose a new path.")
-                atomic_json(args.output, filtered)
+                atomic_json(args.output, filtered, overwrite=False)
             print(json.dumps({"verified": True, "id": result["id"], "view": args.view}))
         elif args.command == "resume":
             result = resume_bundle(read_json(args.artifact))
@@ -145,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
                 checkpoint=args.checkpoint,
                 stop_after=args.stop_after,
             )
-            atomic_json(args.output, result)
+            atomic_json(args.output, result, overwrite=False)
             print(json.dumps({"status": result["status"], "output": str(args.output)}))
         elif args.command == "export":
             result = verify_bundle(read_json(args.artifact))

@@ -170,7 +170,7 @@ function build(): void {
       ),
       el('div', { id: 'error', class: 'error', role: 'alert', tabindex: '-1', hidden: '' }),
       el('p', { id: 'status', class: 'status', role: 'status', 'aria-live': 'polite' }, 'Loading local scenarios…'),
-      el('div', { class: 'workbench', id: 'workbench' },
+      el('div', { class: 'workbench', id: 'workbench', tabindex: '-1' },
         el('aside', { class: 'configuration', 'aria-labelledby': 'config-heading' },
           el('div', { class: 'section-heading' }, el('span', {class: 'section-index'}, '01'), el('h2', { id: 'config-heading' }, 'Set the conditions')),
           el('div', {id: 'config-fields'}),

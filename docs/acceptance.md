@@ -1,42 +1,83 @@
 # MVP acceptance record
 
-Checked locally on 2026-10-15. Status: **headless implementation verified; final live-browser acceptance pending**. The source and browser bundle are runnable, but this record does not mark the whole MVP accepted until that remaining check is completed.
+Checked locally on 2026-10-16. Status: **software MVP accepted locally** against
+[F1–F12 in the implementation contract](mvp-contract.md). All three gates in
+`make verify` pass: kernel/frontend checks, real-server browser workflows, and an
+isolated wheel installation. Scientific acceptance is a separate obligation below.
 
-## Functional evidence
+## Requirement evidence
 
-| Requirement | Implemented evidence | Remaining boundary |
+Test paths below are relative to the repository root. Tests were inspected for the
+assertions they make, not counted as proof merely because they pass.
+
+| Requirement | Current evidence | Boundary |
 |---|---|---|
-| F1: versioned inputs | Strict scenario/action models; 32 input-model tests; resolved defaults, units, provenance and finite values | Source quality is not automatically verified |
-| F2: replace policies/strategies | Four policy families crossed with four strategies in kernel tests; three hazard alternatives | Finite myopic grid, not an equilibrium solver |
-| F3: separate observations | Hidden-state and capture isolation tests, redacted narratives/digests/lineage, actor-order and no-lookahead tests | Live UI boundary workflow pending; researcher configuration is not an actor view |
-| F4: policy lifecycle | Trigger, delayed activation, exceptions, expiry, majority renewal, reviewed restart, residual misuse | Warning and shocks are exogenous synthetic inputs |
-| F5/F9: evidence and explanation | Independent reports, denied access, false allegations, causal decisions, paid enforcement, appeals and restoration | One-positive-report decision rule; no learned evidence fusion |
-| F6: outcome vectors | Defined denominators, null handling, terminal accounting; paired overall and per-group summaries | One population group per jurisdiction; no empirical welfare score |
-| F7: paired ensembles/branches | Exact paired-delta tests, checked batch resumption, immutable parent prefix and up to 16 replayable interventions | Conditional Monte Carlo uncertainty only |
-| F8: private adapter boundary | Private-only adapter metadata, unreviewed warning and public-export denial tests | Organization-specific sources/mappings stay outside this repo; owner review gates design attribution |
-| F10: visual exploration | Responsive workbench, four panels, saved-frame playback, keyboard labels/focus, table alternatives, error states; build and unit tests pass | Four live-browser specs authored but final run, mobile visual inspection and accessibility verification pending |
-| F11: human/model actions | Same validated structured action contract, recorded overrides and invalid-action fallback; branch API tested | Offline model-action records only; no hosted inference, RL training or untrusted plugin execution |
-| F12: reproduce/export | Full-result deterministic replay, forged-checksum/provenance rejection, cancelled-run and batch resume; isolated wheel/CLI checks | Identity checks are not signatures or scientific validation |
+| F1: versioned inputs | `tests/test_models.py`: catalog round-trip/freshness, finite types/ranges, units, IDs, cross-field constraints, unknown-field rejection. Browser JSON authoring validates, resolves defaults and renders hostile strings as text. | Provenance labels do not verify source quality. |
+| F2: replace policies/strategies | `test_policy_strategy_cross_product`: all 16 combinations; `test_alternative_hazards_and_terminal_accounting`: three hazards. | Finite myopic grid, not an equilibrium solver. |
+| F3: separate observations | Projection, hidden-state, capture, narrative/digest and no-lookahead regressions in `tests/test_engine.py`; browser switches public → truth → actor → public, including a branch. | Researcher setup and truth exports intentionally contain hidden state; this is not multiplayer access control. |
+| F4: policy lifecycle | Engine tests exercise delayed activation, exceptions, expiry, majority renewal, reviewed restart, late reports and residual misuse. | Warning and shocks are exogenous synthetic inputs. |
+| F5/F9: evidence/explanation | Perfect/zero detection, shared-root failure, denied inspection, false allegations, causal appeals/restoration, budget exhaustion, capture and monitor-count independence tests. The browser renders the evidence timeline and causal records. | One-positive-report decision rule; no learned evidence fusion. |
+| F6: outcome vectors | Terminal accounting, null-denominator and per-group paired-delta regressions; browser comparison renders intervals, tables and group outcomes. Definitions live in the model card. | One population group per jurisdiction; no empirical welfare score. |
+| F7: paired ensembles/branches | `tests/test_experiments.py` checks exact matched-seed deltas, group deltas, cache rejection and resumed/fresh equality. Branch tests preserve parent history and replay 16 nested interventions; browser branches, changes views and exports. | Conditional Monte Carlo uncertainty only. |
+| F8: private adapter | Model tests reject public adapter mappings; engine warns on unreviewed mappings; artifact, HTTP and browser tests reject private public-classification exports. | Organization-specific sources stay outside the repo; owner review gates design attribution. |
+| F10: visual exploration | Eight Chromium tests in `web/tests/workbench.spec.ts` cover six presets, four panels, keyboard replay, view filtering, branching, comparison, downloads, JSON authoring, private export and network recovery. Desktop and 390px renders inspected; axe scans pass in initial, public replay, truth/comparison and authoring states at both widths. | Chromium acceptance; no screen-reader certification or human usability study. |
+| F11: human/model actions | Invalid-action fallback, override-address and offline-replay tests; browser rejects nonconserving allocations then submits a valid human action through the kernel. | Offline structured model actions only; no hosted inference, RL training or uploaded code. |
+| F12: reproduce/export | Full-result replay rejects forged checksums, identities and lineage; cancelled runs and batches resume. `scripts/check_package.py` verifies installed CLI lifecycle, bundled assets and HTTP export → CLI replay. Concurrent save regression proves exactly one writer succeeds without overwriting another result. | Checksums are not signatures. Resume requires matching source/runtime identity. |
 
-The six fixtures cover racing, reciprocal pacing with hidden capacity, freeze residuals, false allegations, non-member leakage/shocks, and concentrated/captured enforcement. All are fictional. The separate published race-game formula check has 12 tests, including independent numerical integration; it does not establish that the dynamic model reproduces that game's equilibria.
+The six fictional fixtures cover racing, hidden capacity, freeze residuals, false
+allegations, non-member leakage/shocks, and concentrated/captured enforcement. The
+12 analytic-baseline tests include independent numerical integration of a separate
+published race-game formula; they do not validate the dynamic model's equilibria.
 
-## Executed checks
+## Executed gates
 
-- `make check`: 136 Python tests, six frontend unit tests, Ruff, formatting, mypy and TypeScript/Vite build pass.
-- `pytest --cov=isobar`: 85% statement coverage. CLI tests execute subprocesses, which this coverage invocation does not count; the CLI is additionally checked from an isolated wheel installation. Coverage is not a validity score.
-- `make build`: wheel and source archive built; wheel includes kernel, type marker, HTML, favicon, CSS and JS.
-- Isolated Python 3.12 wheel installation, outside the checkout: catalog, schema, validate, run, replay, resume, branch, public export, interrupted/resumed comparison, and loopback serving of bundled assets checked.
-- `npm audit`, including development dependencies: no known vulnerabilities reported. `pip-audit` on the locked runtime dependencies: no known vulnerabilities reported. This is a point-in-time advisory check, not a security proof.
-- HTTP tests cover loopback host/origin restrictions, path traversal, content validation, private export and nested intervention reconstruction. No external deployment exists.
+- `make verify`: 143 Python tests, six frontend unit tests, eight real-server browser
+  tests, Ruff, formatting, mypy, and TypeScript checking of app, tests and configs.
+- The package gate builds a fresh source archive/wheel and installs the wheel with
+  hashed, locked runtime dependencies in a temporary Python 3.12 environment outside
+  the checkout. It checks catalog, schema, validation, cancellation/resume, replay,
+  branch, export, interrupted/resumed comparisons, overwrite rejection, static
+  assets and HTTP export/replay. It asserts imports resolve inside that environment.
+- Browser tests use production assets and a fresh loopback server, with no successful
+  API mocks. Fault injection tests startup and request recovery. All preset requests
+  stay local. Reports, accessibility scans and screenshots are generated under
+  `web/playwright-report/` and `web/test-results/`; failure traces are retained.
+- HTTP tests cover host/origin restrictions, traversal, content type, body size,
+  malformed/nonfinite JSON, classification and intervention reconstruction.
+- `npm audit` (including development dependencies) and `pip-audit --disable-pip
+  --no-deps` against the complete locked runtime export reported no known
+  vulnerabilities on 2026-10-16. These are advisory checks, not security proofs.
+- Both repository skills pass the skill-creator frontmatter validator. Their commands
+  were exercised by the gates above; `AGENTS.md` links to the existing model/contract
+  sources instead of copying them. This is workflow validation, not a measured claim
+  about agent productivity.
+- CI uses pinned action commits, read-only repository permissions, a timeout, and the
+  same `make verify` gate. Synthetic browser evidence is retained for 14 days. See
+  [workflow runs](https://github.com/AbdelStark/isobar/actions/workflows/check.yml)
+  for hosted status at a particular commit; local success does not imply hosted success.
 
-One earlier desktop screenshot was inspected for layout. The initial browser test was stopped and does not count as a passed suite. Final browser execution requires owner approval because the connected browser surface blocks localhost. No automated accessibility certification, screen-reader pass or human usability study is claimed. Hosted CI status is recorded by the repository's workflow runs, not inferred from these local results.
+The 2026-10-16 fixes change keyboard focus and artifact write safety, not model
+dynamics or serialized run fields. Model `isobar-reference-v1`, scenario schema 1 and
+artifact schema 1 remain unchanged. Source-identity checks still reject resuming
+checkpoints created by different code; complete artifacts remain replay-verified.
 
 ## Measured reference performance
 
-Apple M4 Max, macOS 26.6.2 arm64, Python 3.12.12. Sixty in-process kernel runs: six presets, seeds 0 through 9, each extended to 120 ticks. Scenario validation was outside the timed interval; result construction and digesting were inside it. Median 16.0 ms, nearest-rank p95 24.5 ms, maximum 27.6 ms. These are a local smoke benchmark, not a cross-device guarantee. Browser interaction latency has not been measured.
+2026-10-16, Apple M4 Max, macOS arm64, Python 3.12.12. Sixty in-process runs: six
+presets, seeds 0–9, horizon 120. Scenario validation was outside the timed interval;
+simulation, result construction and digesting were inside. Median 17.1 ms,
+nearest-rank p95 31.7 ms, maximum 34.2 ms. These are local smoke measurements under
+concurrent test load, not cross-device latency guarantees. Browser interaction
+latency has not been benchmarked.
 
 ## Scientific acceptance is separate
 
-The implementation aggregates a state and its developer into one actor, uses binary compliance beliefs, synthetic scalar hazards and a budgeted institution. It omits independent strategic firms, bargaining, learned agent training, empirical calibration, a multi-bin hidden-capacity posterior and a full technical verification-system emulator. These are explicit reductions, not implemented features hidden behind UI controls.
+The implementation aggregates a state and its developer into one actor, uses binary
+compliance beliefs, synthetic scalar hazards and a budgeted institution. It omits
+independent strategic firms, bargaining, learned agent training, empirical calibration,
+a multi-bin hidden-capacity posterior and a full technical verification-system emulator.
+These are explicit reductions, not implemented features hidden behind UI controls.
 
-Independent methods review, design-owner review of a private mapping, the proposed five-participant usability exercise, empirical validation and any policy recommendation remain separate research work. No amount of passing software tests supplies that evidence.
+Independent methods review, review of any private mapping, the proposed five-participant
+usability exercise, empirical validation and policy recommendations remain separate
+research work. The application is local-only; no hosted deployment is claimed.

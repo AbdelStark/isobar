@@ -1,6 +1,9 @@
 # MVP implementation contract
 
-Status: implementation in progress. Synthetic, uncalibrated research software. No project delivery estimates. Private repository; no embedded private company documents or organization-specific mechanisms. A local-only adapter can map a private design using generic parameters without publishing that mapping.
+Status: implemented; software acceptance is tracked in [the acceptance record](acceptance.md).
+Synthetic, uncalibrated research software. Private repository; no embedded private
+company documents or organization-specific mechanisms. A local-only adapter can map
+a private design using generic parameters without publishing that mapping.
 
 ## Scope and acceptance
 
@@ -16,11 +19,11 @@ Scientific limits: software tests prove implementation behavior only. External r
 
 `from isobar.models import Scenario, Action`
 
-Pydantic v2 models, strict finite numeric validation, extra keys forbidden. `Scenario.model_validate(dict)` and `model_dump(mode="json")`. Required top-level fields: `schema_version: 1`, `id`, `name`, `description`, `question`, `classification: public|private`, `seed: int`, `horizon: int (1..240)`, `units`, `assumptions`, `actors`, `policy`, `verification`, `institution`, `dynamics`. Built-in presets supply all fields, including explicit units/provenance. Engine agent defines nested fields and publishes them early for the frontend.
+Pydantic v2 models, strict finite numeric validation, extra keys forbidden. `Scenario.model_validate(dict)` and `model_dump(mode="json")`. Required top-level fields: `schema_version: 1`, `id`, `name`, `description`, `question`, `classification: public|private`, `seed: int`, `horizon: int (1..240)`, `units`, `assumptions`, `actors`, `policy`, `verification`, `institution`, `dynamics`. Built-in presets supply all fields, including explicit units/provenance. Nested fields are defined by the generated Scenario schema and documented in the model card.
 
 Policy config includes `family` with the four values above. Each actor has `id`, `name`, `strategy`, `member`, `declared_capacity`, `hidden_capacity`, `capability`, `safety`, `population`; other necessary values explicit with synthetic defaults. IDs unique; 2..8 actors. Missing units and unknown units fail. All parameters documented in model card. No eval/import from scenario data.
 
-Action: normalized fractions `train`, `safety`, `service`, `idle` (sum 1, nonnegative), `conceal` (0..1), and institution-related choices if needed. All physical actions run through one validated contract. Engine agent may refine fields but must tell root/frontend promptly. A supplied invalid action results in a labeled no-action fallback and an event; malformed scenario fails before running.
+Action: normalized fractions `train`, `safety`, `service`, `idle` (sum 1, nonnegative), `conceal` (0..1), and boolean `appeal`, `inspect`, `renew`, `request_restart` choices. All physical actions run through one validated contract. A supplied invalid action results in a labeled no-action fallback and an event; malformed scenario fails before running.
 
 `from isobar.scenarios import catalog, get_scenario`
 
@@ -55,7 +58,7 @@ Result structure:
 
 Metrics must include `control_incidents`, `misuse_incidents`, `service_total`, `denial_fraction`, `privacy_fraction`, `appeal_success_fraction` (null denominator), `breaches`, `cooperation_fraction`, `power_concentration`, `auditability_fraction`, `readiness_gap`, and per-group `distribution`. Label quantities/units and conditional interpretations. Frames include cumulative metrics and actor capability/safety/service for truth; actor views filter unavailable fields. Public view uses only declared/observed outcomes, never hidden aggregate truth.
 
-## Root-owned experiment and HTTP interface
+## Experiment and HTTP interface
 
 `artifacts.py`: canonical SHA256, atomically persist verified bundles; version/config/trace checks; local-only code/environment identity; `--public` export refuses private classification. Recorded actions reproduce runs offline. Checkpoint stores validated result prefix and config/action/digest identity; resume replays prefix deterministically and verifies before continuation. No pretend serialization of an unvalidated arbitrary Python object.
 

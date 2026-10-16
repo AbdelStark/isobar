@@ -1,3 +1,6 @@
+import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 
 import pytest
@@ -28,6 +31,36 @@ def test_round_trip_and_tamper_detection(tmp_path):
         verify_bundle(altered)
     with pytest.raises(FileExistsError):
         save_run(path, run)
+
+
+def test_concurrent_saves_never_replace_another_result(tmp_path, monkeypatch):
+    path = tmp_path / "run.json"
+    scenario = small_scenario()
+    first = simulate(scenario)
+    scenario.seed += 1
+    second = simulate(scenario)
+    barrier = threading.Barrier(2, timeout=5)
+    fsync = os.fsync
+
+    def synchronize_writers(fd):
+        fsync(fd)
+        barrier.wait()
+
+    monkeypatch.setattr(os, "fsync", synchronize_writers)
+
+    def save(result):
+        try:
+            save_run(path, result)
+            return result["id"]
+        except FileExistsError:
+            return None
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        saved = list(pool.map(save, [first, second]))
+    winners = [identity for identity in saved if identity is not None]
+    assert len(winners) == 1
+    assert verify_bundle(read_json(path))["id"] == winners[0]
+    assert list(tmp_path.iterdir()) == [path]
 
 
 def test_cancel_resume_matches_complete():

@@ -1,6 +1,9 @@
 # Working on Isobar
 
-Use Python 3.12 through `uv` and Node 24. Install with `make setup`, then `make check`. Browser tests are in `web/`; backend tests require no network or credentials.
+Use Python 3.12 through `uv` and Node 24. Install with `make setup`, then `make check`.
+Install Chromium once with `make browser-setup`; `make verify` runs the full local
+acceptance gate, including the real-browser and isolated-wheel checks. Dependencies
+and browser installation need network access; the running application does not.
 
 The kernel owns physical state and transitions. Policies change obligations, not physics. Strategies receive only actor views. Keep action, observation and institutional decisions separate, and test changed information boundaries.
 
@@ -8,4 +11,16 @@ Every model change needs a model-card update, regression tests, an explicit mode
 
 Use exact paths when staging. Keep external private designs out of the repository. Public sharing, a license change, collaborators, remote model calls and hosted deployment require separate owner approval. This private repository has no open-source license grant.
 
-Build the wheel after the browser bundle, then verify CLI and local serving from an isolated wheel installation. Do not rely only on an editable install.
+For a focused UI change use `make check-browser`. It starts a fresh server on 4318;
+stop your own development server first, or inspect the listener if the port is busy.
+Open `web/playwright-report/index.html` for results and inspect failure traces and
+screenshots in `web/test-results/`. `make check-package` builds and installs outside
+the checkout, using locked runtime dependencies, and checks the CLI and bundled UI.
+CI runs `make verify` and retains synthetic browser evidence for 14 days.
+
+Agents start at [AGENTS.md](AGENTS.md). The two repository skills cover model changes
+and verification, with detailed equations and contracts kept in the existing docs.
+This follows the [native repository guidance and skill pattern](https://developers.openai.com/blog/skills-agents-sdk).
+The harness uses [Playwright accessibility scans](https://playwright.dev/docs/accessibility-testing)
+alongside keyboard, failure-recovery and real-kernel tests. Automated scans do not
+replace screen-reader testing or a human usability study.

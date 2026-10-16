@@ -4,7 +4,7 @@ A local simulation laboratory for AI governance. Compare development policies un
 
 All scenarios are synthetic. Simulation outcomes are conditional on the model, not predictions about countries, evidence that a treaty works, or calibrated estimates of catastrophic risk.
 
-The Python kernel owns all dynamics. A local browser workbench shows actor-specific knowledge, evidence trails, outcomes and assumptions. The private MVP candidate implements six scenarios, four policy families, four classical strategies, human counterfactuals and paired experiments. Headless verification is complete; final live-browser acceptance is pending. See the [acceptance record](docs/acceptance.md) for the exact boundary.
+The Python kernel owns all dynamics. A local browser workbench shows actor-specific knowledge, evidence trails, outcomes and assumptions. The private MVP implements six scenarios, four policy families, four classical strategies, human counterfactuals and paired experiments. Kernel, browser and isolated-install acceptance checks pass. See the [acceptance record](docs/acceptance.md) for the exact boundary.
 
 ## Run locally
 
@@ -27,7 +27,8 @@ Research exports contain hidden state, regardless of the current view. Public-cl
 uv run isobar run s4 -o runs/false-allegation.json
 uv run isobar replay runs/false-allegation.json --view public
 uv run isobar compare s2 --seeds 1 2 3 4 -o runs/comparison.json
-make check
+make browser-setup
+make verify
 ```
 
 Output files are not overwritten. Replay checks the entire result by deterministic re-execution, including nested branch provenance. Comparisons report paired differences, explicit sample sizes and Monte Carlo intervals; those intervals exclude structural uncertainty. There is no global policy score.
@@ -37,5 +38,6 @@ Output files are not overwritten. Replay checks the entire result by determinist
 - [Implementation contract](docs/mvp-contract.md): Python and local HTTP interfaces.
 - [Analytic check](docs/analytic-baseline.md): a separate published race-game calculation, not validation of the ABM.
 - [Acceptance record](docs/acceptance.md) and [local trust boundary](SECURITY.md).
+- [Contributing](CONTRIBUTING.md) and [agent entrypoint](AGENTS.md): local skills, verification gates and CI evidence.
 
 AI-assisted implementation and documentation. Actors aggregate a jurisdiction and its developer; hazards, preferences and institutional behavior are uncalibrated. No independent methods review, human usability study, learned-policy training or hosted deployment is claimed. Private repository, no open-source license grant.

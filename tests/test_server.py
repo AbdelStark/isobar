@@ -7,7 +7,7 @@ import pytest
 
 from isobar.artifacts import verify_bundle
 from isobar.scenarios import get_scenario
-from isobar.server import LocalServer
+from isobar.server import MAX_BODY, LocalServer
 
 
 @pytest.fixture
@@ -81,6 +81,30 @@ def test_comparison_limits(local_server):
     )
     assert status == 400
     assert b"20 seeds" in body
+
+
+@pytest.mark.parametrize(
+    "payload,headers,status",
+    [
+        (b"{}", {"Content-Type": "text/plain"}, 415),
+        (b"{}", {"Content-Length": str(MAX_BODY + 1)}, 413),
+        (b"", {}, 413),
+        (b"[]", {}, 400),
+        (b'{"scenario":NaN}', {}, 400),
+        (b"{broken", {}, 400),
+    ],
+)
+def test_http_rejects_malformed_envelopes(local_server, payload, headers, status):
+    req = Request(
+        local_server + "/api/run",
+        data=payload,
+        headers={"Content-Type": "application/json", **headers},
+    )
+    with pytest.raises(HTTPError) as error:
+        urlopen(req, timeout=15)
+    assert error.value.code == status
+    assert json.loads(error.value.read())["error"]
+    assert request(local_server, "/api/health")[0] == 200
 
 
 def test_branch_chain_retains_provenance_across_views_and_export(local_server):

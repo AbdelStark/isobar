@@ -40,7 +40,7 @@ def environment() -> dict:
     }
 
 
-def atomic_json(path: Path, data: Any) -> None:
+def atomic_json(path: Path, data: Any, *, overwrite: bool = True) -> None:
     payload = canonical(data)
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
@@ -50,7 +50,11 @@ def atomic_json(path: Path, data: Any) -> None:
             stream.write(b"\n")
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, path)
+        if overwrite:
+            os.replace(temporary, path)
+        else:
+            # Link the complete file atomically; an existence precheck races other writers.
+            os.link(temporary, path)
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
@@ -158,5 +162,5 @@ def save_run(path: Path, result: dict, *, public: bool = False) -> dict:
     if path.exists():
         raise FileExistsError("Output already exists; choose a new artifact path.")
     bundle = package_run(result, public=public)
-    atomic_json(path, bundle)
+    atomic_json(path, bundle, overwrite=False)
     return bundle

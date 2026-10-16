@@ -27,7 +27,8 @@ include = ["/src", "/tests", "/docs", "/web/src", "/web/public", "/web/tests",
            "/web/index.html", "/web/package.json", "/web/package-lock.json",
            "/web/tsconfig.json", "/web/vite.config.ts", "/web/playwright.config.ts",
            "/README.md", "/CONTRIBUTING.md", "/SECURITY.md", "/Makefile",
-           "/pyproject.toml", "/uv.lock", "/.python-version", "/.github/workflows"]
+           "/pyproject.toml", "/uv.lock", "/.python-version", "/.github/workflows",
+           "/AGENTS.md", "/.agents/skills", "/scripts"]
 
 [tool.hatch.build.targets.sdist.force-include]
 "web/dist" = "web/dist"
