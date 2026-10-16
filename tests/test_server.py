@@ -41,7 +41,7 @@ def request(base, path, body=None, headers=None):
 def test_catalog_and_workbench_assets(local_server):
     status, body, headers = request(local_server, "/api/catalog")
     assert status == 200
-    assert len(json.loads(body)["scenarios"]) == 6
+    assert len(json.loads(body)["scenarios"]) == 7
     assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
     assert request(local_server, "/")[0] == 200
     assert request(local_server, "/%2e%2e/secret.txt")[0] == 404
@@ -129,3 +129,30 @@ def test_branch_chain_retains_provenance_across_views_and_export(local_server):
     bundle = json.loads(exported)
     assert bundle["result"]["id"] == child["id"]
     verify_bundle(bundle)
+
+
+def test_decision_api_enforces_boundary_and_reconstructs_intervention(local_server):
+    scenario = get_scenario("world").model_dump(mode="json")
+    scenario["horizon"] = 3
+    action = {"train": 0, "safety": 0.5, "service": 0.5, "idle": 0}
+    body = {
+        "scenario": scenario,
+        "tick": 1,
+        "actor_id": "usa",
+        "interventions": [{"tick": 1, "actor_id": "usa", "action": action}],
+    }
+    for view in ("public", "chn"):
+        assert request(local_server, "/api/decision", {**body, "view": view})[0] == 403
+    for view in ("usa", "truth"):
+        status, raw, _ = request(local_server, "/api/decision", {**body, "view": view})
+        assert status == 200, raw
+        result = json.loads(raw)
+        assert result["source"] == "recorded override"
+        assert result["selected_action"]["train"] == 0
+        assert "scenario" not in result
+        assert len(result["alternatives"]) == 6
+    assert request(local_server, "/api/decision", {**body, "view": "truth", "tick": 3})[0] == 400
+    assert (
+        request(local_server, "/api/decision", {**body, "view": "truth", "actor_id": "missing"})[0]
+        == 400
+    )

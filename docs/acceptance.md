@@ -1,6 +1,6 @@
 # MVP acceptance record
 
-Checked locally on 2026-10-16. Status: **software MVP accepted locally** against
+Checked locally on 2026-10-16. Status: **software MVP and Earth iteration accepted locally** against
 [F1–F12 in the implementation contract](mvp-contract.md). All three gates in
 `make verify` pass: kernel/frontend checks, real-server browser workflows, and an
 isolated wheel installation. Scientific acceptance is a separate obligation below.
@@ -20,28 +20,35 @@ assertions they make, not counted as proof merely because they pass.
 | F6: outcome vectors | Terminal accounting, null-denominator and per-group paired-delta regressions; browser comparison renders intervals, tables and group outcomes. Definitions live in the model card. | One population group per jurisdiction; no empirical welfare score. |
 | F7: paired ensembles/branches | `tests/test_experiments.py` checks exact matched-seed deltas, group deltas, cache rejection and resumed/fresh equality. Branch tests preserve parent history and replay 16 nested interventions; browser branches, changes views and exports. | Conditional Monte Carlo uncertainty only. |
 | F8: private adapter | Model tests reject public adapter mappings; engine warns on unreviewed mappings; artifact, HTTP and browser tests reject private public-classification exports. | Organization-specific sources stay outside the repo; owner review gates design attribution. |
-| F10: visual exploration | Eight Chromium tests in `web/tests/workbench.spec.ts` cover six presets, four panels, keyboard replay, view filtering, branching, comparison, downloads, JSON authoring, private export and network recovery. Desktop and 390px renders inspected; axe scans pass in initial, public replay, truth/comparison and authoring states at both widths. | Chromium acceptance; no screen-reader certification or human usability study. |
+| F10: visual exploration | Thirteen Chromium tests in `web/tests/` cover seven presets, globe/map rotation, zoom, geographic and keyboard selection, layer changes, tick-linked shares, private beliefs, decision payoffs, intervention explanation, stale-response rejection, branching, comparison, downloads and recovery. Desktop and 390px renders inspected; axe scans pass in initial, public replay, truth/comparison and authoring states at both widths. | Chromium acceptance; no screen-reader certification or human usability study. |
 | F11: human/model actions | Invalid-action fallback, override-address and offline-replay tests; browser rejects nonconserving allocations then submits a valid human action through the kernel. | Offline structured model actions only; no hosted inference, RL training or uploaded code. |
 | F12: reproduce/export | Full-result replay rejects forged checksums, identities and lineage; cancelled runs and batches resume. `scripts/check_package.py` verifies installed CLI lifecycle, bundled assets and HTTP export → CLI replay. Concurrent save regression proves exactly one writer succeeds without overwriting another result. | Checksums are not signatures. Resume requires matching source/runtime identity. |
 
 The six fictional fixtures cover racing, hidden capacity, freeze residuals, false
 allegations, non-member leakage/shocks, and concentrated/captured enforcement. The
+additional world fixture places eight synthetic actors on bundled Natural Earth
+geometry. `tests/test_decisions.py` checks copied diagnostic observations, actual
+chosen actions, utility decomposition, bounded probabilities, private-rival invariance
+and nested overrides. HTTP tests reject private incentives from public/rival views. The
 12 analytic-baseline tests include independent numerical integration of a separate
 published race-game formula; they do not validate the dynamic model's equilibria.
 
 ## Executed gates
 
-- `make verify`: 143 Python tests, six frontend unit tests, eight real-server browser
+- `make verify`: 159 Python tests, eight frontend unit tests, thirteen real-server browser
   tests, Ruff, formatting, mypy, and TypeScript checking of app, tests and configs.
 - The package gate builds a fresh source archive/wheel and installs the wheel with
   hashed, locked runtime dependencies in a temporary Python 3.12 environment outside
   the checkout. It checks catalog, schema, validation, cancellation/resume, replay,
   branch, export, interrupted/resumed comparisons, overwrite rejection, static
-  assets and HTTP export/replay. It asserts imports resolve inside that environment.
+  assets/third-party notices and world HTTP run/decision/export/replay. It asserts
+  imports resolve inside that environment.
 - Browser tests use production assets and a fresh loopback server, with no successful
   API mocks. Fault injection tests startup and request recovery. All preset requests
   stay local. Reports, accessibility scans and screenshots are generated under
   `web/playwright-report/` and `web/test-results/`; failure traces are retained.
+- Regenerating bundled geography from its pinned, checksum-verified source produces
+  byte-identical JSON. Its 177 geographic features do not enter model dynamics.
 - HTTP tests cover host/origin restrictions, traversal, content type, body size,
   malformed/nonfinite JSON, classification and intervention reconstruction.
 - `npm audit` (including development dependencies) and `pip-audit --disable-pip
@@ -56,8 +63,11 @@ published race-game formula; they do not validate the dynamic model's equilibria
   [workflow runs](https://github.com/AbdelStark/isobar/actions/workflows/check.yml)
   for hosted status at a particular commit; local success does not imply hosted success.
 
-The 2026-10-16 fixes change keyboard focus and artifact write safety, not model
-dynamics or serialized run fields. Model `isobar-reference-v1`, scenario schema 1 and
+The 2026-10-16 changes add Earth exploration, a synthetic fixture, observational
+decision instrumentation, keyboard focus and artifact write safety. Existing model
+dynamics and serialized run fields remain unchanged. All six original full preset
+results matched a saved pre-refactor capture exactly on the development runtime.
+Model `isobar-reference-v1`, scenario schema 1 and
 artifact schema 1 remain unchanged. Source-identity checks still reject resuming
 checkpoints created by different code; complete artifacts remain replay-verified.
 
@@ -68,7 +78,8 @@ presets, seeds 0–9, horizon 120. Scenario validation was outside the timed int
 simulation, result construction and digesting were inside. Median 17.1 ms,
 nearest-rank p95 31.7 ms, maximum 34.2 ms. These are local smoke measurements under
 concurrent test load, not cross-device latency guarantees. Browser interaction
-latency has not been benchmarked.
+latency has not been benchmarked. These timings predate the eight-actor world fixture
+and do not measure decision-inspection reexecution.
 
 ## Scientific acceptance is separate
 

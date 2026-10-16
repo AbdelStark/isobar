@@ -61,7 +61,7 @@ def main() -> None:
         def cli(*args: str) -> dict | list:
             return json.loads(command(executable, *args))
 
-        assert len(cli("catalog")) == 6
+        assert len(cli("catalog")) == 7
         assert cli("validate", "s2")["valid"]
         assert cli("schema")["title"] == "Scenario"
         assert cli("run", "s2", "--stop-at", "3", "-o", "partial.json")["status"] == "cancelled"
@@ -131,10 +131,29 @@ def main() -> None:
                 assert any(asset.endswith(".css") for asset in assets)
                 for asset in assets:
                     assert request(asset)
-                scenario = json.loads(request("/api/catalog"))["scenarios"][1]
+                assert b"Mike Bostock" in request("/third-party.txt")
+                scenario = next(
+                    item
+                    for item in json.loads(request("/api/catalog"))["scenarios"]
+                    if item["id"] == "world"
+                )
                 run = json.loads(request("/api/run", {"scenario": scenario, "view": "public"}))
                 assert run["completed_ticks"] > 0
                 assert "hidden_capacity" not in json.dumps(run)
+                assert len(run["frames"][0]["actors"]) == 8
+                decision = json.loads(
+                    request(
+                        "/api/decision",
+                        {
+                            "scenario": scenario,
+                            "actor_id": "usa",
+                            "tick": 0,
+                            "view": "usa",
+                        },
+                    )
+                )
+                assert len(decision["alternatives"]) == 6
+                assert decision["selected_action"]["train"] >= 0
                 bundle = request("/api/export", {"scenario": scenario, "public": True})
                 (work / "browser-export.json").write_bytes(bundle)
                 assert cli("replay", "browser-export.json")["verified"]
@@ -143,7 +162,7 @@ def main() -> None:
                 server.wait(timeout=10)
         print(
             "Package check passed: isolated wheel, CLI lifecycle, bundled assets, "
-            "HTTP run/export/replay."
+            "world run/decision/export/replay."
         )
 
 

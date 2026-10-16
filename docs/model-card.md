@@ -250,3 +250,38 @@ inputs. The exact deterrence identity is checked analytically. Reproducing an
 external published simulator, empirical calibration, independent methods review
 and a human usability study remain separate research work, not accomplished by
 these checks.
+
+## Geographic world fixture and decision inspection
+
+The `world` fixture adds eight named countries with invented parameters and a
+36-tick reciprocal-policy scenario. It reuses the same equations, scheduling and
+strategies as S1–S6. Country area, borders and distance do not enter any transition.
+The name and geometry are geographic labels, not evidence about governments. All
+population weights are one, not national populations. See the
+[Earth guide](earth-explorer.md) for provenance and interpretation.
+
+The Earth capability balance divides each displayed capability by the sum over all
+modeled actors. If any input is unavailable, negative, or the sum is zero, shares
+are unavailable. The map readiness layer subtracts displayed safety from displayed
+capability **before** the hazard's readiness threshold and positive-part operation.
+It must not be read as `readiness_gap` in the truth outcome vector. Public and rival
+values remain declared-work estimates; own state and explicit truth use true values.
+
+`decisions.inspect_decision` reexecutes the effective recorded action map and captures
+the chosen actor's frozen pre-action observation. It uses the same `candidates` and
+`payoff` helpers as strategy selection. It returns the actual action, a six-row
+subjective payoff decomposition and bounded-strategy probabilities proportional to
+`exp(temperature * utility)`. Candidate probabilities describe the configured rule,
+including when a human overrode it. They are not probabilities of the human action.
+Compliant/reciprocal strategies do not choose from these utility scores. The chart
+is not a payoff matrix for a normal-form game, a Nash equilibrium or a welfare score.
+
+The server admits this explanation only for the requested actor's view or explicit
+post-run truth. No rival private parameters enter its calculation. Diagnostic
+callbacks receive copied observations and actions and cannot alter serialized runs.
+
+Compatibility decision: this is a new fixture and observational instrumentation,
+not a dynamics change. Model `isobar-reference-v1`, scenario schema 1 and artifact
+schema 1 remain unchanged. All six original full preset results were compared with
+a saved pre-refactor capture and matched exactly on the development runtime. Partial
+checkpoints still require identical source/runtime identity before resumption.

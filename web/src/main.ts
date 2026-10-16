@@ -1,66 +1,14 @@
 import './style.css';
 import { actionFromInputs, finiteNumber, format, humanize, intervalExtent, MAX_SEED, pairedSeeds, parseScenario, parseSeed, record, type JsonRecord } from './core';
 
-type Actor = JsonRecord & { id: string; name: string; strategy: string };
-type Scenario = JsonRecord & {
-  id: string; name: string; description: string; question: string; classification: string;
-  seed: number; horizon: number; actors: Actor[]; policy: JsonRecord; verification: JsonRecord;
-};
-type Frame = { tick: number; actors: Actor[]; institution: JsonRecord; metrics: JsonRecord };
-type Event = { id: string; tick: number; kind: string; actor_id: string | null; summary: string; causes: string[]; data: JsonRecord; visibility: string };
-type Run = { id: string; status: string; scenario: Scenario; model_version: string; completed_ticks: number; frames: Frame[]; events: Event[]; metrics: JsonRecord; warnings: unknown[]; branch: JsonRecord | null; terminal_cause: string | null; digests: JsonRecord };
+import type {Scenario, Frame, Run} from './types';
+import {WorldExplorer} from './world';
 type Stats = { mean: number | null; sd: number | null; ci_low: number | null; ci_high: number | null; n: number };
 type GroupSummary = {actor_id: string; name: string; population: number; metrics: Record<string, Stats>};
 type Summary = { policy: string; metrics: Record<string, Stats>; n: number; distribution?: GroupSummary[] };
 type Comparison = { model_version: string; seeds: number[]; baseline: string; summaries: Summary[]; differences: Summary[]; note: string };
 type Intervention = {tick: number; actor_id: string; action: JsonRecord};
-type Child = Node | string | null | undefined;
-
-function el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, ...children: Child[]): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
-  for (const child of children) if (child !== null && child !== undefined) node.append(child);
-  return node;
-}
-function get<T extends HTMLElement = HTMLElement>(id: string): T {
-  const element = document.getElementById(id);
-  if (!element) throw new Error(`Missing interface element: ${id}`);
-  return element as T;
-}
-const input = (id: string) => get<HTMLInputElement>(id);
-function field(label: string, control: HTMLElement, help?: string): HTMLElement {
-  const wrapper = el('div', { class: 'field' }, el('label', { for: control.id }, label), control);
-  if (help) {
-    const helpId = `${control.id}-help`;
-    control.setAttribute('aria-describedby', helpId);
-    wrapper.append(el('small', { id: helpId }, help));
-  }
-  return wrapper;
-}
-function numberField(id: string, label: string, value: number, min: number, max: number, step = '1', help?: string): HTMLElement {
-  return field(label, el('input', { id, type: 'number', value: String(value), min: String(min), max: String(max), step, required: '' }), help);
-}
-function select(id: string, choices: Array<[string, string]>, value?: string): HTMLSelectElement {
-  const control = el('select', { id });
-  for (const [key, text] of choices) {
-    const option = el('option', { value: key }, text);
-    option.selected = key === value;
-    control.append(option);
-  }
-  return control;
-}
-function button(id: string, text: string, kind = ''): HTMLButtonElement {
-  return el('button', { id, type: 'button', class: kind }, text);
-}
-function details(title: string, ...children: Child[]): HTMLDetailsElement {
-  return el('details', {}, el('summary', {}, title), ...children);
-}
-function table(headers: string[], rows: unknown[][], caption: string): HTMLElement {
-  const node = el('table', {}, el('caption', { class: 'sr-only' }, caption), el('thead', {}, el('tr', {}, ...headers.map(h => el('th', { scope: 'col' }, h)))));
-  node.append(el('tbody', {}, ...rows.map(row => el('tr', {}, ...row.map((value, i) => el(i === 0 ? 'th' : 'td', i === 0 ? {scope: 'row'} : {}, format(value)))))));
-  return el('div', { class: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': caption }, node);
-}
-const pretty = (data: unknown) => el('pre', {}, el('code', {}, JSON.stringify(data, null, 2)));
+import {el, get, input, field, numberField, select, button, details, table, pretty} from './ui';
 const clone = <T>(value: T): T => structuredClone(value);
 
 let scenarios: Scenario[] = [], policies: string[] = [], strategies: string[] = [];
@@ -70,6 +18,7 @@ let interventions: Intervention[] = [];
 let comparison: Comparison | null = null, comparisonMetric = 'service_total', comparisonMode = 'summaries';
 let comparisonScenario: Scenario | null = null;
 let busy = false, playing: ReturnType<typeof setInterval> | undefined;
+let world: WorldExplorer;
 
 const metrics: Record<string, [string, string]> = {
   control_incidents: ['Control incidents', 'Sampled count; conditional on the chosen hazard model'],
@@ -129,6 +78,7 @@ async function work(message: string, action: () => Promise<void>): Promise<void>
     busy = false;
     controls.forEach((control, i) => { control.disabled = states[i]; });
     get('app').removeAttribute('aria-busy');
+    updateWorld();
     if (document.activeElement === document.body && focused instanceof HTMLElement && focused.isConnected) {
       focused.focus({preventScroll: true});
     }
@@ -142,11 +92,19 @@ function clearComparison(): void {
 function markDirty(): void {
   stopPlayback();
   run = null; runScenario = null; actions = {}; interventions = []; view = 'public';
+  frameIndex = 0;
   clearComparison();
+  updateWorld();
   get('replay-controls').replaceChildren();
   get('run-content').replaceChildren(el('div', {class: 'empty-state'}, el('h3', {}, 'The conditions have changed.'), el('p', {}, 'Run this draft to inspect a fresh replay. Previous human interventions have been cleared.')));
   get('draft-state').textContent = 'Draft changed. Run to inspect the consequences.';
   announce('Draft changed. Previous replay and comparison cleared. Run the scenario to inspect the new conditions.');
+}
+function updateWorld(): void {
+  if (!world) return;
+  let scenario = runScenario ?? draft;
+  if (!run) { try { scenario = readDraft(); } catch { /* Keep the last valid preview while a form is incomplete. */ } }
+  world.update({scenario, run, frameIndex, view, playing: Boolean(playing)});
 }
 function readDraft(): Scenario {
   const next = clone(draft);
@@ -169,11 +127,12 @@ function build(): void {
     ),
     el('main', {},
       el('section', { class: 'intro', 'aria-labelledby': 'title' },
-        el('div', {}, el('p', { class: 'eyebrow' }, 'AI GOVERNANCE · UNDER IMPERFECT INFORMATION'), el('h1', { id: 'title' }, 'What holds ', el('em', {}, 'under pressure?'))),
+        el('div', {}, el('p', { class: 'eyebrow' }, 'AI GOVERNANCE · UNDER IMPERFECT INFORMATION'), el('h1', { id: 'title' }, 'A world ', el('em', {}, 'in the balance.'))),
         el('div', { class: 'intro-aside' }, el('p', {}, 'Change the rules. Inspect what actors can know. Follow the consequences.'), el('p', {class: 'caution'}, 'Synthetic scenarios, not forecasts. No single score, no recommended treaty.')),
       ),
       el('div', { id: 'error', class: 'error', role: 'alert', tabindex: '-1', hidden: '' }),
       el('p', { id: 'status', class: 'status', role: 'status', 'aria-live': 'polite' }, 'Loading local scenarios…'),
+      world.element,
       el('div', { class: 'workbench', id: 'workbench', tabindex: '-1' },
         el('aside', { class: 'configuration', 'aria-labelledby': 'config-heading' },
           el('div', { class: 'section-heading' }, el('span', {class: 'section-index'}, '01'), el('h2', { id: 'config-heading' }, 'Set the conditions')),
@@ -203,6 +162,7 @@ function build(): void {
     if ((event.target as HTMLElement).matches('input, select, button, textarea, summary')) stopPlayback();
   });
   renderConfig();
+  updateWorld();
 }
 
 function renderConfig(): void {
@@ -269,6 +229,34 @@ function stopPlayback(): void {
   playing = undefined;
   const play = document.getElementById('play');
   if (play) play.textContent = 'Play replay';
+  world?.setPlaying(false);
+}
+async function changeView(requested: string, focusId = 'world-view'): Promise<void> {
+  if (!run || !runScenario) return;
+  await work('Reconstructing the selected observation boundary…', async () => {
+    run = await api<Run>('run', {scenario: runScenario, actions, interventions, view: requested});
+    view = requested;
+    frameIndex = Math.min(frameIndex, Math.max(0, run.frames.length - 1));
+    renderReplay();
+    announce(`Observation boundary: ${requested === 'truth' ? 'post-run ground truth' : requested}.`);
+  });
+  get<HTMLSelectElement>('view').value = view;
+  if (get('error').hidden) document.getElementById(focusId)?.focus({preventScroll: true});
+}
+function seekTick(index: number): void {
+  stopPlayback(); frameIndex = index;
+  input('timeline').value = String(index); renderFrame();
+}
+function togglePlayback(): void {
+  if (playing) { stopPlayback(); return; }
+  if (!run?.frames.length) return;
+  if (frameIndex >= run.frames.length - 1) frameIndex = 0;
+  get('play').textContent = 'Pause replay';
+  playing = setInterval(() => {
+    if (!run || frameIndex >= run.frames.length - 1) { stopPlayback(); return; }
+    frameIndex += 1; input('timeline').value = String(frameIndex); renderFrame();
+  }, 900);
+  input('timeline').value = String(frameIndex); renderFrame();
 }
 function renderReplay(): void {
   if (!run || !runScenario) return;
@@ -283,29 +271,14 @@ function renderReplay(): void {
     el('div', {class: 'timeline'}, button('play', 'Play replay'), field('Replay tick', el('input', {id: 'timeline', type: 'range', min: '0', max: String(Math.max(0, run.frames.length - 1)), value: String(frameIndex)})), el('output', {id: 'tick-label', for: 'timeline'})),
     el('nav', {class: 'panel-nav', 'aria-label': 'Run sections'}, ...[['actors', 'Actors'], ['evidence', 'Evidence & decisions'], ['outcomes', 'Outcomes'], ['assumptions', 'Assumptions']].map(([id, label]) => el('a', {href: `#${id}`}, label))),
   );
-  get('view').addEventListener('change', () => {
-    const requested = get<HTMLSelectElement>('view').value;
-    void work('Reconstructing the selected observation boundary…', async () => {
-      const filtered = await api<Run>('run', {scenario: runScenario, actions, interventions, view: requested});
-      run = filtered; view = requested;
-      frameIndex = Math.min(frameIndex, Math.max(0, run.frames.length - 1));
-      renderReplay(); get('view').focus(); announce(`Observation boundary: ${requested === 'truth' ? 'post-run ground truth' : requested}.`);
-    }).then(() => { get<HTMLSelectElement>('view').value = view; });
-  });
-  get('timeline').addEventListener('input', () => { stopPlayback(); frameIndex = Number(input('timeline').value); renderFrame(); });
-  get('play').addEventListener('click', () => {
-    if (playing) { stopPlayback(); return; }
-    if (run && frameIndex >= run.frames.length - 1) frameIndex = 0;
-    get('play').textContent = 'Pause replay';
-    playing = setInterval(() => {
-      if (!run || frameIndex >= run.frames.length - 1) { stopPlayback(); return; }
-      frameIndex += 1; input('timeline').value = String(frameIndex); renderFrame();
-    }, 900);
-  });
+  get('view').addEventListener('change', () => void changeView(get<HTMLSelectElement>('view').value, 'view'));
+  get('timeline').addEventListener('input', () => seekTick(Number(input('timeline').value)));
+  get('play').addEventListener('click', togglePlayback);
   renderFrame();
 }
 
 function renderFrame(): void {
+  updateWorld();
   if (!run || !runScenario) return;
   const frame = run.frames[frameIndex];
   if (!frame) { get('run-content').replaceChildren(el('p', {}, 'This run has no saved frames.')); return; }
@@ -503,7 +476,20 @@ async function initialize(): Promise<void> {
     const catalog = await api<{scenarios: Scenario[]; policies: string[]; strategies: string[]}>('catalog');
     scenarios = catalog.scenarios; policies = catalog.policies; strategies = catalog.strategies;
     if (!scenarios.length) throw new Error('No scenarios were returned. Check the local server installation.');
-    draft = clone(scenarios.find(s => s.id.toLowerCase() === 's2') ?? scenarios[1] ?? scenarios[0]);
+    draft = clone(scenarios.find(s => s.id.toLowerCase() === 'world') ?? scenarios[1] ?? scenarios[0]);
+    world = new WorldExplorer({
+      run: () => void startRun(), view: value => void changeView(value), tick: seekTick, play: togglePlayback,
+      edit: () => get('scenario').focus(),
+      intervene: actor => {
+        stopPlayback();
+        get<HTMLSelectElement>('branch-actor').value = actor;
+        get('branch-actor').focus();
+      },
+      decision: (actor, tick) => {
+        stopPlayback();
+        return api<JsonRecord>('decision', {scenario: runScenario, actions, interventions, tick, actor_id: actor, view});
+      },
+    });
     build();
     announce('Ready. Choose a scenario, review the assumptions, then run it.');
   } catch (error) {

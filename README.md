@@ -4,7 +4,7 @@ A local simulation laboratory for AI governance. Compare development policies un
 
 All scenarios are synthetic. Simulation outcomes are conditional on the model, not predictions about countries, evidence that a treaty works, or calibrated estimates of catastrophic risk.
 
-The Python kernel owns all dynamics. A local browser workbench shows actor-specific knowledge, evidence trails, outcomes and assumptions. The private MVP implements six scenarios, four policy families, four classical strategies, human counterfactuals and paired experiments. Kernel, browser and isolated-install acceptance checks pass. See the [acceptance record](docs/acceptance.md) for the exact boundary.
+The Python kernel owns all dynamics. An interactive Earth globe shows changing capability shares, national trajectories, coalition links and private beliefs. A decision inspector explains each action using the kernel’s own utility calculations. The workbench includes an eight-country sandbox, six fictional scenarios, four policy families, four classical strategies, human counterfactuals and paired experiments. Kernel, browser and isolated-install acceptance checks pass. See the [acceptance record](docs/acceptance.md) for the exact boundary.
 
 ## Run locally
 
@@ -17,7 +17,7 @@ make serve
 
 Open `http://127.0.0.1:4318`. No accounts, analytics, external fonts or hosted model calls. The server is for trusted local use only, not public deployment.
 
-Choose a scenario, read its assumptions, then run it. Switch between public observations, an actor's observations and explicitly labeled post-run truth. Scrub the timeline, follow a disputed report through its decision and appeal, or replace one actor action. Compare all four policies across matched seeds, including outcomes for each affected group.
+Start with **Simulate world**, select a nation and play the timeline. Switch map layers, inspect a national strategy, or change its decision. The eight real country names carry entirely synthetic parameters. Read the assumption card before interpreting the results. Switch between public observations, an actor's observations and explicitly labeled post-run truth. Scrub the timeline, follow a disputed report through its decision and appeal, or replace one actor action. Compare all four policies across matched seeds, including outcomes for each affected group.
 
 Research exports contain hidden state, regardless of the current view. Public-classification export rejects private inputs; it does not grant permission to publish a synthetic run. Keep confidential mappings outside this repository.
 
@@ -33,6 +33,7 @@ make verify
 
 Output files are not overwritten. Replay checks the entire result by deterministic re-execution, including nested branch provenance. Comparisons report paired differences, explicit sample sizes and Monte Carlo intervals; those intervals exclude structural uncertainty. There is no global policy score.
 
+- [Earth explorer](docs/earth-explorer.md): nation states, map layers, strategic decisions and geographic provenance.
 - [User guide](docs/user-guide.md): authoring, interventions, replay, cancellation and resumption.
 - [Model card](docs/model-card.md): equations, every parameter, scheduling and metric denominators.
 - [Implementation contract](docs/mvp-contract.md): Python and local HTTP interfaces.

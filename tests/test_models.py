@@ -9,8 +9,8 @@ from isobar.scenarios import catalog, get_scenario
 
 def test_complete_catalog_is_fresh_and_versioned():
     scenarios = catalog()
-    assert len(scenarios) == 6
-    assert len({s["id"] for s in scenarios}) == 6
+    assert len(scenarios) == 7
+    assert len({s["id"] for s in scenarios}) == 7
     for scenario in scenarios:
         assert Scenario.model_validate(scenario).model_dump(mode="json") == scenario
         assert scenario["units"]["time"] == "synthetic_tick"

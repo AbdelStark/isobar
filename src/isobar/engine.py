@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from collections.abc import Callable
 from copy import deepcopy
 from typing import Any
 
@@ -80,7 +81,11 @@ def _safe_input(value: Any) -> Any:
 
 
 def simulate(
-    scenario: Scenario, *, actions: dict | None = None, stop_at: int | None = None
+    scenario: Scenario,
+    *,
+    actions: dict | None = None,
+    stop_at: int | None = None,
+    on_decision: Callable[[int, str, dict, Action], None] | None = None,
 ) -> dict:
     """Run simultaneous decisions, from tick 0, with replayable recorded overrides."""
     scenario = Scenario.model_validate(scenario.model_dump(mode="json"))
@@ -589,6 +594,8 @@ def simulate(
                     observation, _draw(scenario.seed, tick, actor_id, "strategy")
                 )
             action_log[key] = chosen[actor_id].model_dump(mode="json")
+            if on_decision is not None:
+                on_decision(tick, actor_id, deepcopy(observation), chosen[actor_id].model_copy())
         office["renewal_votes"] = [
             aid for aid, a in chosen.items() if a.renew and states[aid]["member"]
         ]

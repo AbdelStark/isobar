@@ -27,7 +27,7 @@ def kinds(run, kind):
     return [event for event in run["events"] if event["kind"] == kind]
 
 
-@pytest.mark.parametrize("id", [f"s{n}" for n in range(1, 7)])
+@pytest.mark.parametrize("id", [f"s{n}" for n in range(1, 7)] + ["world"])
 def test_all_scenarios_replay_and_have_causal_finite_outcomes(id):
     scenario = get_scenario(id)
     result = simulate(scenario)

@@ -23,7 +23,7 @@ packages = ["src/isobar"]
 "web/dist" = "isobar/static"
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/docs", "/web/src", "/web/public", "/web/tests",
+include = ["/src", "/tests", "/docs", "/web/src", "/web/public", "/web/tests", "/web/scripts",
            "/web/index.html", "/web/package.json", "/web/package-lock.json",
            "/web/tsconfig.json", "/web/vite.config.ts", "/web/playwright.config.ts",
            "/README.md", "/CONTRIBUTING.md", "/SECURITY.md", "/Makefile",

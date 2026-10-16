@@ -14,7 +14,7 @@ def cli(*args):
 
 def test_documented_cli_run_replay_and_resume(tmp_path):
     assert cli("--help").returncode == 0
-    assert len(json.loads(cli("catalog").stdout)) == 6
+    assert len(json.loads(cli("catalog").stdout)) == 7
     assert json.loads(cli("validate", "S2").stdout)["valid"]
     partial = tmp_path / "partial.json"
     done = tmp_path / "done.json"

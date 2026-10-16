@@ -10,8 +10,9 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
-  await expect(page.getByRole('heading', {level: 1})).toHaveText('What holds under pressure?');
-  await expect(page.locator('#scenario')).toHaveValue('s2');
+  await expect(page.getByRole('heading', {level: 1})).toHaveText('A world in the balance.');
+  await expect(page.locator('#scenario')).toHaveValue('world');
+  await page.locator('#scenario').selectOption('s2');
   await page.screenshot({path: testInfo.outputPath('workbench-desktop.png'), fullPage: true});
   await page.locator('#horizon').fill('12');
   await page.getByRole('button', {name: 'Run scenario', exact: true}).click();
@@ -170,7 +171,7 @@ test('all synthetic presets run with keyboard playback and local-only requests',
     if (new URL(request.url()).origin !== 'http://127.0.0.1:4318') external.push(request.url());
   });
   await page.goto('/');
-  for (const preset of ['s1', 's2', 's3', 's4', 's5', 's6']) {
+  for (const preset of ['s1', 's2', 's3', 's4', 's5', 's6', 'world']) {
     await page.locator('#scenario').selectOption(preset);
     await page.locator('#run').click();
     await expect(page.locator('#status')).toContainText('Run completed');

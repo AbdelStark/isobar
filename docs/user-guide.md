@@ -2,7 +2,9 @@
 
 ## One question, then one change
 
-Start with S4 to inspect a false allegation and its remedy, or S2 to inspect reciprocal restraint under imperfect information. Read the assumption card before running. A tick is a synthetic period, not a week or month.
+The workbench opens on the eight-country `world` sandbox. [Explore the Earth view](earth-explorer.md) for geographic replay, capability shares and decision payoffs. Its national parameters are synthetic.
+
+For a focused mechanism question, start with S4 to inspect a false allegation and its remedy, or S2 to inspect reciprocal restraint under imperfect information. Read the assumption card before running. A tick is a synthetic period, not a week or month.
 
 The saved frame is the state **after** that tick's action. Tick 0 is the first decision. Replay playback only moves through saved frames; it does not resimulate or make decisions for you. Public and actor views are filtered by the kernel. Researcher setup deliberately shows full starting assumptions in a separate, labeled area. This is a local research application, not a multiplayer secrecy boundary.
 
@@ -60,7 +62,7 @@ The batch checkpoint is atomically updated after each completed run. Repeating t
 Run `make browser-setup` once to install Chromium, then `make check-browser` for the
 real-server browser suite. Stop your own server on 4318 before running it; the suite
 starts a fresh process and refuses to reuse an unknown server. The tests cover all
-six presets, replay/view boundaries, branching/comparison/export, invalid JSON and
+seven presets, globe/map controls, decision incentives, replay/view boundaries, branching/comparison/export, invalid JSON and
 text safety, private export denial, network failure recovery, keyboard playback and
 desktop/mobile accessibility scans. Reports are in `web/playwright-report/`;
 screenshots, scans and failure traces are in `web/test-results/`.

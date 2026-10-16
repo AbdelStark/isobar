@@ -13,6 +13,7 @@ from urllib.parse import unquote, urlsplit
 from pydantic import ValidationError
 
 from isobar.artifacts import canonical, package_run, verify_bundle
+from isobar.decisions import inspect_decision
 from isobar.engine import MAX_BRANCH_DEPTH, branch, project, simulate
 from isobar.experiments import POLICIES, STRATEGIES, compare
 from isobar.models import Scenario
@@ -48,6 +49,14 @@ def dispatch(path: str, body: dict) -> dict:
     view = body.get("view", "public")
     if path == "/api/run":
         return project(reconstruct_request(scenario, body), view)
+    if path == "/api/decision":
+        if view not in {"truth", body.get("actor_id")} or view == "public":
+            raise PermissionError(
+                "Choose this nation's observations or post-run truth to inspect incentives."
+            )
+        return inspect_decision(
+            reconstruct_request(scenario, body), body["tick"], body["actor_id"], view
+        )
     if path == "/api/branch":
         if len(body.get("interventions", [])) >= MAX_BRANCH_DEPTH:
             raise ValueError("Branch chain limit reached. Start a new experiment.")

@@ -1,4 +1,4 @@
-"""Six fictional fixtures, not empirical descriptions or country forecasts."""
+"""Synthetic fixtures and a geographic sandbox, never empirical country forecasts."""
 
 from copy import deepcopy
 from typing import Any
@@ -65,11 +65,60 @@ _BASE: dict[str, Any] = {
 def get_scenario(id: str) -> Scenario:
     """Return a fresh, fully resolved validated preset."""
     key = id.lower()
-    if key not in {"s1", "s2", "s3", "s4", "s5", "s6"}:
-        raise ValueError(f"unknown scenario {id!r}; choose s1 through s6")
+    if key not in {"s1", "s2", "s3", "s4", "s5", "s6", "world"}:
+        raise ValueError(f"unknown scenario {id!r}; choose world or s1 through s6")
     config = deepcopy(_BASE)
     config["id"] = key
-    if key == "s2":
+    if key == "world":
+        config.update(
+            name="A world in the balance",
+            description="Eight nation states navigate an illustrative AI development race. "
+            "Geography is real; capacities, preferences and coalition membership are synthetic.",
+            question="Can reciprocal restraint hold as power and incentives shift?",
+            horizon=36,
+        )
+        roster = [
+            ("usa", "United States", "myopic", True, 16.0, 2.0, 1.8, 1.0),
+            ("chn", "China", "bounded", True, 15.0, 3.0, 1.6, 0.9),
+            ("ind", "India", "reciprocal", True, 9.0, 1.0, 1.0, 0.7),
+            ("rus", "Russia", "myopic", False, 8.0, 2.0, 1.1, 0.6),
+            ("bra", "Brazil", "reciprocal", True, 6.0, 0.5, 0.7, 0.6),
+            ("fra", "France", "compliant", True, 8.0, 0.0, 1.1, 0.9),
+            ("jpn", "Japan", "compliant", True, 10.0, 0.5, 1.3, 1.0),
+            ("zaf", "South Africa", "bounded", False, 4.0, 0.0, 0.5, 0.4),
+        ]
+        config["actors"] = [
+            dict(
+                id=aid,
+                name=name,
+                strategy=strategy,
+                member=member,
+                declared_capacity=capacity,
+                hidden_capacity=hidden,
+                capability=capability,
+                safety=safety,
+                population=1.0,
+            )
+            for aid, name, strategy, member, capacity, hidden, capability, safety in roster
+        ]
+        config["policy"] = {"family": "reciprocal", "duration": 28}
+        config["dynamics"] = {
+            "efficiency_shock_tick": 16,
+            "efficiency_multiplier": 1.5,
+            "diffusion_shock": 0.04,
+        }
+        config["assumptions"] = [
+            {
+                "parameter": "all national values, strategies and membership",
+                "evidence_type": "synthetic",
+                "rationale": "Country names locate illustrative actors on Earth. Every starting "
+                "value, preference, strategy and coalition assignment is invented for exploration, "
+                "not a national statistic or a claim about a government. Unmodeled countries "
+                "are geography only. Borders have no causal effect on the simulation.",
+                "source": "Isobar geographic sandbox v1; no empirical calibration",
+            }
+        ]
+    elif key == "s2":
         config.update(
             name="Reciprocity under imperfect verification",
             description="Hidden capacity and delayed observations challenge reciprocity.",
@@ -157,4 +206,10 @@ def get_scenario(id: str) -> Scenario:
 
 
 def catalog() -> list[dict]:
-    return [get_scenario(f"s{n}").model_dump(mode="json") for n in range(1, 7)]
+    return [
+        get_scenario(key).model_dump(mode="json")
+        for key in [
+            *[f"s{n}" for n in range(1, 7)],
+            "world",
+        ]
+    ]
