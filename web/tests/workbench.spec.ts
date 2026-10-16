@@ -22,6 +22,8 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   await expect(page.getByLabel('Permit inspection')).toBeChecked();
   await expect(page.locator('#outcomes')).toContainText('Overturned appeals / resolved appeals');
   await expect(page.locator('#outcomes')).toContainText('Resolved appeals / filed appeals');
+  const authority = page.locator('#outcomes tr').filter({has: page.getByRole('rowheader', {name: 'Authority concentration', exact: true})});
+  await expect(authority).toContainText('Not available');
   await expect(page.locator('#assumptions')).not.toContainText('"hidden_capacity"');
   await page.locator('#timeline').evaluate((element: HTMLInputElement) => { element.value = element.max; element.dispatchEvent(new Event('input', {bubbles: true})); });
   await expect(page.locator('#tick-label')).toHaveText('11 / 11');
@@ -31,6 +33,7 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   await expect(page.locator('#status')).toContainText('post-run ground truth');
   await expect(page.locator('#view')).toBeFocused();
   await expect(page.locator('#assumptions')).toContainText('"hidden_capacity"');
+  await expect(authority.getByRole('cell', {name: '0.5', exact: true})).toBeVisible();
   await page.locator('#view').selectOption('aurora');
   await expect(page.locator('#status')).toContainText('Observation boundary: aurora');
   await expect(page.locator('#view')).toHaveValue('aurora');
@@ -60,6 +63,8 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   await expect(page.locator('#comparison-results svg circle')).toHaveCount(4);
   await expect(page.locator('#comparison-results')).toContainText('Service per population');
   await expect(page.locator('#comparison-results')).toContainText('Aurora');
+  await page.locator('#compare-metric').selectOption('authority_concentration');
+  await expect(page.locator('#comparison-results svg circle')).toHaveCount(4);
   await page.locator('#compare-mode').selectOption('differences');
   await expect(page.locator('#comparison-results svg circle')).toHaveCount(3);
   await expect(page.locator('#compare-mode')).toBeFocused();
@@ -163,6 +168,42 @@ test('startup and request failures recover without losing a replay or draft', as
   await page.locator('#view').selectOption('truth');
   await expect(page.locator('#status')).toContainText('post-run ground truth');
   await expect(page.getByRole('alert')).toBeHidden();
+});
+
+test('an unreadable successful response preserves the current replay and allows retry', async ({page}) => {
+  await page.goto('/');
+  await page.locator('#run').click();
+  await expect(page.locator('#status')).toContainText('Run completed');
+  const actors = await page.locator('#actors').textContent();
+  await page.route('**/api/run', route => route.fulfill({status: 200, contentType: 'text/html', body: '<html>Incomplete response</html>'}));
+  await page.locator('#view').selectOption('truth');
+  await expect(page.getByRole('alert')).toContainText('unreadable response');
+  await expect(page.locator('#view')).toHaveValue('public');
+  await expect(page.locator('#actors')).toHaveText(actors!);
+  await expect(page.locator('#run')).toBeEnabled();
+  await page.unroute('**/api/run');
+  await page.locator('#view').selectOption('truth');
+  await expect(page.locator('#status')).toContainText('post-run ground truth');
+  await expect(page.getByRole('alert')).toBeHidden();
+});
+
+test('renaming a scenario actor updates every observation selector', async ({page}) => {
+  await page.goto('/');
+  await page.locator('#world-run').click();
+  await expect(page.locator('#status')).toContainText('Run completed');
+  await page.locator('#advanced > summary').click();
+  await expect(page.locator('#scenario-json')).not.toHaveValue('');
+  const scenario = JSON.parse(await page.locator('#scenario-json').inputValue());
+  scenario.actors.find((actor: {id: string}) => actor.id === 'fra').name = 'Renamed France';
+  await page.locator('#scenario-json').fill(JSON.stringify(scenario));
+  await page.locator('#apply-json').click();
+  await expect(page.locator('#status')).toContainText('Scenario validated and applied');
+  await expect(page.locator('#world-view option[value="fra"]')).toHaveText('Renamed France’s observations');
+  await page.locator('#world-run').click();
+  await expect(page.locator('#status')).toContainText('Run completed');
+  await expect(page.locator('#view option[value="fra"]')).toHaveText('Renamed France’s observations');
+  await page.locator('#world-view').selectOption('fra');
+  await expect(page.locator('#world-boundary')).toContainText('Renamed France');
 });
 
 test('all synthetic presets run with keyboard playback and local-only requests', async ({page}) => {

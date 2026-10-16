@@ -12,6 +12,14 @@ To intervene, choose an actor, a completed decision tick and allocations that su
 
 The comparison uses the draft scenario, without human interventions. It varies policy family across consecutive matched seeds. Inspect both the overall outcome vector and the affected-group table. The latter includes service per synthetic population weight, denied service, exposure and incidents. Null means the denominator is absent or the observation is unavailable, never zero. With very few seeds, normal-approximation intervals can be poor even within the assumed model.
 
+Compute concentration and institutional authority concentration are separate outcomes
+in the table and comparison selector. Both are withheld from public/actor projections;
+use explicit post-run truth to inspect them. Neither is a welfare score.
+
+If a request fails because the server is unreachable or its JSON response is unreadable,
+the last successful replay remains available. Check that the local server is running,
+then retry. Editing the scenario deliberately clears the old replay as described above.
+
 ## Author a scenario
 
 Expand Advanced scenario authoring, edit the JSON, then validate and apply. The kernel rejects unknown fields, unsupported units, invalid ranges and inconsistent actor identities. Defaults are resolved into the saved input. Use the assumption records to explain provenance; a `measured` label is your assertion, not something the simulator verifies.

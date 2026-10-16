@@ -20,7 +20,7 @@ assertions they make, not counted as proof merely because they pass.
 | F6: outcome vectors | Terminal accounting, null-denominator and per-group paired-delta regressions; browser comparison renders intervals, tables and group outcomes. Definitions live in the model card. | One population group per jurisdiction; no empirical welfare score. |
 | F7: paired ensembles/branches | `tests/test_experiments.py` checks exact matched-seed deltas, group deltas, cache rejection and resumed/fresh equality. Branch tests preserve parent history and replay 16 nested interventions; browser branches, changes views and exports. | Conditional Monte Carlo uncertainty only. |
 | F8: private adapter | Model tests reject public adapter mappings; engine warns on unreviewed mappings; artifact, HTTP and browser tests reject private public-classification exports. | Organization-specific sources stay outside the repo; owner review gates design attribution. |
-| F10: visual exploration | Thirteen Chromium tests in `web/tests/` cover seven presets, globe/map rotation, zoom, geographic and keyboard selection, layer changes, tick-linked shares, private beliefs, decision payoffs, intervention explanation, stale-response rejection, branching, comparison, downloads and recovery. Desktop and 390px renders inspected; axe scans pass in initial, public replay, truth/comparison and authoring states at both widths. | Chromium acceptance; no screen-reader certification or human usability study. |
+| F10: visual exploration | Fifteen Chromium tests in `web/tests/` cover seven presets, globe/map rotation, zoom, geographic and keyboard selection, layer changes, tick-linked shares, private beliefs, decision payoffs, intervention explanation, stale-response rejection, branching, comparison, downloads and recovery. Desktop and 390px renders inspected; axe scans pass in initial, public replay, truth/comparison and authoring states at both widths. | Chromium acceptance; no screen-reader certification or human usability study. |
 | F11: human/model actions | Invalid-action fallback, override-address and offline-replay tests; browser rejects nonconserving allocations then submits a valid human action through the kernel. | Offline structured model actions only; no hosted inference, RL training or uploaded code. |
 | F12: reproduce/export | Full-result replay rejects forged checksums, identities and lineage; cancelled runs and batches resume. `scripts/check_package.py` verifies installed CLI lifecycle, bundled assets and HTTP export → CLI replay. Concurrent save regression proves exactly one writer succeeds without overwriting another result. | Checksums are not signatures. Resume requires matching source/runtime identity. |
 
@@ -35,7 +35,7 @@ published race-game formula; they do not validate the dynamic model's equilibria
 
 ## Executed gates
 
-- `make verify`: 173 Python tests, eight frontend unit tests, thirteen real-server browser
+- `make verify`: 173 Python tests, eight frontend unit tests, fifteen real-server browser
   tests, Ruff, formatting, mypy, and TypeScript checking of app, tests and configs.
 - The package gate builds a fresh source archive/wheel and installs the wheel with
   hashed, locked runtime dependencies in a temporary Python 3.12 environment outside
@@ -99,6 +99,15 @@ do not rewrite checkpoint identities to bypass that check.
 The roadmap records the next sensitivity study and separates software verification
 from independent methods review, new-reader usability and release publication. The
 smoke experiment is not the proposed study and does not satisfy those external gates.
+
+A browser quality pass reproduced and fixed unreadable HTTP 200 responses replacing
+a valid replay and renamed actors retaining stale observation labels. The real-server
+regressions check replay preservation, retry and both observation selectors. The
+outcome table and comparison selector now expose the kernel's existing authority
+concentration metric alongside compute concentration; public projections still withhold
+both. The pass also removes unused browser action state and the completed Earth plan,
+documents generated assets, and makes CI read the Node range from `web/package.json`.
+Locked dependency versions and Python model behavior are unchanged.
 
 ## Measured reference performance
 

@@ -146,7 +146,7 @@ export class WorldExplorer {
       this.analysis.replaceChildren(); this.analysis.hidden = true;
     }
     const choices = [['public', 'Public record'], ...this.actors.map(actor => [actor.id, `${actor.name}’s observations`]), ['truth', 'Post-run ground truth']];
-    if (this.viewControl.options.length !== choices.length || [...this.viewControl.options].some((option,i) => option.value !== choices[i]?.[0])) {
+    if (this.viewControl.options.length !== choices.length || [...this.viewControl.options].some((option,i) => option.value !== choices[i]?.[0] || option.textContent !== choices[i]?.[1])) {
       this.viewControl.replaceChildren(...choices.map(([value, label]) => el('option', {value}, label)));
     }
     this.viewControl.value = state.view;

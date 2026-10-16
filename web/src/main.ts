@@ -13,7 +13,7 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 let scenarios: Scenario[] = [], policies: string[] = [], strategies: string[] = [];
 let draft: Scenario, runScenario: Scenario | null = null, run: Run | null = null;
-let actions: Record<string, JsonRecord> = {}, frameIndex = 0, view = 'public';
+let frameIndex = 0, view = 'public';
 let interventions: Intervention[] = [];
 let comparison: Comparison | null = null, comparisonMetric = 'service_total', comparisonMode = 'summaries';
 let comparisonScenario: Scenario | null = null;
@@ -30,7 +30,8 @@ const metrics: Record<string, [string, string]> = {
   appeal_resolution_fraction: ['Appeals resolved', 'Resolved appeals / filed appeals; unavailable when none filed'],
   breaches: ['Actual breaches', 'Truth-only count, not a count of allegations'],
   cooperation_fraction: ['Cooperation', 'Truth-only fraction under the model definition'],
-  power_concentration: ['Power concentration', 'Structural concentration index'],
+  power_concentration: ['Compute concentration', 'Truth-only concentration of declared plus hidden compute'],
+  authority_concentration: ['Authority concentration', 'Truth-only institutional authority index; may rise after modeled capture'],
   auditability_fraction: ['Inspectable decisions', 'Fraction of decisions'],
   readiness_gap: ['Readiness gap', 'Truth-only capability minus safety index'],
 };
@@ -42,7 +43,9 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     });
   } catch { throw new Error('The local server is not reachable. Start Isobar on 127.0.0.1:4318 and try again.'); }
-  const data = await response.json().catch(() => ({error: 'The server returned an unreadable response. Restart the local server and try again.'}));
+  let data: unknown;
+  try { data = await response.json(); }
+  catch { throw new Error('The server returned an unreadable response. Restart the local server and try again.'); }
   if (!response.ok) {
     const info = record(data);
     const extra = Array.isArray(info.details) ? info.details.map(item => {
@@ -91,7 +94,7 @@ function clearComparison(): void {
 }
 function markDirty(): void {
   stopPlayback();
-  run = null; runScenario = null; actions = {}; interventions = []; view = 'public';
+  run = null; runScenario = null; interventions = []; view = 'public';
   frameIndex = 0;
   clearComparison();
   updateWorld();
@@ -217,7 +220,7 @@ async function startRun(): Promise<void> {
   await work('Running the scenario locally…', async () => {
     const candidate = readDraft();
     const result = await api<Run>('run', {scenario: candidate, view});
-    draft = candidate; runScenario = clone(candidate); actions = {}; interventions = []; run = result;
+    draft = candidate; runScenario = clone(candidate); interventions = []; run = result;
     frameIndex = 0;
     get('draft-state').textContent = 'Replay matches the current scenario.';
     renderReplay();
@@ -234,7 +237,7 @@ function stopPlayback(): void {
 async function changeView(requested: string, focusId = 'world-view'): Promise<void> {
   if (!run || !runScenario) return;
   await work('Reconstructing the selected observation boundary…', async () => {
-    run = await api<Run>('run', {scenario: runScenario, actions, interventions, view: requested});
+    run = await api<Run>('run', {scenario: runScenario, interventions, view: requested});
     view = requested;
     frameIndex = Math.min(frameIndex, Math.max(0, run.frames.length - 1));
     renderReplay();
@@ -383,7 +386,7 @@ async function branchRun(): Promise<void> {
     const action = actionFromInputs(values);
     const tick = finiteNumber(input('branch-tick').value, 'Decision tick', 0, Math.max(0, (run?.completed_ticks ?? 1) - 1), true);
     const actor_id = get<HTMLSelectElement>('branch-actor').value;
-    run = await api<Run>('branch', {scenario: runScenario, actions, interventions, tick, actor_id, action, view});
+    run = await api<Run>('branch', {scenario: runScenario, interventions, tick, actor_id, action, view});
     interventions = [...interventions, {tick, actor_id, action}];
     frameIndex = Math.min(tick, run.frames.length - 1);
     renderReplay();
@@ -394,7 +397,7 @@ async function branchRun(): Promise<void> {
 async function exportRun(isPublic: boolean): Promise<void> {
   await work('Regenerating and checking the export bundle…', async () => {
     if (!runScenario) throw new Error('Run a scenario before exporting.');
-    const bundle = await api('export', {scenario: runScenario, actions, interventions, public: isPublic});
+    const bundle = await api('export', {scenario: runScenario, interventions, public: isPublic});
     const url = URL.createObjectURL(new Blob([JSON.stringify(bundle, null, 2) + '\n'], {type: 'application/json'}));
     const anchor = el('a', {href: url, download: `isobar-${isPublic ? 'public' : 'internal-truth'}-${runScenario.id.replace(/[^a-z0-9_-]/gi, '_')}.json`});
     anchor.click();
@@ -487,7 +490,7 @@ async function initialize(): Promise<void> {
       },
       decision: (actor, tick) => {
         stopPlayback();
-        return api<JsonRecord>('decision', {scenario: runScenario, actions, interventions, tick, actor_id: actor, view});
+        return api<JsonRecord>('decision', {scenario: runScenario, interventions, tick, actor_id: actor, view});
       },
     });
     build();

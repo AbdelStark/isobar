@@ -26,7 +26,7 @@ It combines an agent-based Python simulator with an interactive Earth workbench.
 
 ## Quickstart
 
-Requires **Python 3.12**, **Node 24**, [`uv`](https://docs.astral.sh/uv/getting-started/installation/) and `make`. No GPU, model weights or API keys are required.
+Requires **Python 3.12**, [**Node 24**](web/package.json), [`uv`](https://docs.astral.sh/uv/getting-started/installation/) and `make`. No GPU, model weights or API keys are required.
 
 ```sh
 git clone https://github.com/AbdelStark/isobar.git
