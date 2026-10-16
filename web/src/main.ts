@@ -118,6 +118,7 @@ async function work(message: string, action: () => Promise<void>): Promise<void>
   stopPlayback();
   get('error').hidden = true;
   announce(message);
+  const focused = document.activeElement;
   const controls = [...document.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>('input, button, select, textarea')];
   const states = controls.map(control => control.disabled);
   controls.forEach(control => { control.disabled = true; });
@@ -128,6 +129,9 @@ async function work(message: string, action: () => Promise<void>): Promise<void>
     busy = false;
     controls.forEach((control, i) => { control.disabled = states[i]; });
     get('app').removeAttribute('aria-busy');
+    if (document.activeElement === document.body && focused instanceof HTMLElement && focused.isConnected) {
+      focused.focus({preventScroll: true});
+    }
   }
 }
 

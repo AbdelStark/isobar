@@ -16,6 +16,7 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   await page.locator('#horizon').fill('12');
   await page.getByRole('button', {name: 'Run scenario', exact: true}).click();
   await expect(page.locator('#status')).toContainText('Run completed');
+  await expect(page.locator('#run')).toBeFocused();
   await expect(page.locator('#view')).toHaveValue('public');
   await expect(page.getByLabel('Permit inspection')).toBeChecked();
   await expect(page.locator('#outcomes')).toContainText('Overturned appeals / resolved appeals');
@@ -53,6 +54,7 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   await page.locator('#ensemble-count').fill('2');
   await page.locator('#compare-run').click();
   await expect(page.locator('#status')).toContainText('Compared 4 policies');
+  await expect(page.locator('#compare-run')).toBeFocused();
   await expect(page.locator('#comparison-results svg')).toBeVisible();
   await expect(page.locator('#comparison-results svg circle')).toHaveCount(4);
   await expect(page.locator('#comparison-results')).toContainText('Service per population');
@@ -70,6 +72,7 @@ test('run, inspect boundaries, branch, compare and export through the real kerne
   expect(bundle).toHaveProperty('artifact_version');
   expect(JSON.stringify(bundle)).toContain('parent_id');
   await expect(page.locator('#status')).toContainText('Nothing was published');
+  await expect(page.locator('#export-public')).toBeFocused();
   await page.screenshot({path: testInfo.outputPath('workbench-run.png'), fullPage: true});
   await page.locator('#coverage').fill('0.4');
   await page.locator('#coverage').blur();
