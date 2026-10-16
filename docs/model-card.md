@@ -54,7 +54,7 @@ classification regardless of whether the current view is public.
 
 | Fields | Meaning |
 |---|---|
-| `id`, `name` | Stable synthetic identity and display label; IDs must be unique |
+| `id`, `name` | Stable synthetic identity and display label; IDs must be unique and cannot be the reserved observation modes `public` or `truth` |
 | `strategy`, `member` | One of four classical strategies; coalition rule coverage |
 | `declared_capacity`, `hidden_capacity` | Nonoverlapping physical capacity pools; enforcement reaches only declared capacity |
 | `capability`, `safety` | Initial capability and safety-readiness indices; initial values are public in this model |
@@ -238,6 +238,11 @@ numbers are represented as invalid strings for JSON-safe replay. Realized `actio
 also support offline execution but do not recreate original invalid-input notices.
 Branches preserve the parent's prefix and recorded lineage. Cancellation records
 the completed prefix; resumption replays and verifies it before continuation.
+Run and batch artifact versions must be integer 1. Checkpoint environment metadata
+must be an object; malformed metadata fails validation before resumption.
+Comparison reports include the runtime/source identity, resolved configuration and
+per-run metrics/digests. They summarize runs rather than embedding replay bundles;
+regenerate individual traces from the stored configuration, policy and seed.
 Lineage is limited to 16 nested interventions; branch creation rejects a seventeenth
 so every accepted branch remains within the artifact replay depth limit.
 

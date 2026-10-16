@@ -21,7 +21,7 @@ Scientific limits: software tests prove implementation behavior only. External r
 
 Pydantic v2 models, strict finite numeric validation, extra keys forbidden. `Scenario.model_validate(dict)` and `model_dump(mode="json")`. Required top-level fields: `schema_version: 1`, `id`, `name`, `description`, `question`, `classification: public|private`, `seed: int`, `horizon: int (1..240)`, `units`, `assumptions`, `actors`, `policy`, `verification`, `institution`, `dynamics`. Built-in presets supply all fields, including explicit units/provenance. Nested fields are defined by the generated Scenario schema and documented in the model card.
 
-Policy config includes `family` with the four values above. Each actor has `id`, `name`, `strategy`, `member`, `declared_capacity`, `hidden_capacity`, `capability`, `safety`, `population`; other necessary values explicit with synthetic defaults. IDs unique; 2..8 actors. Missing units and unknown units fail. All parameters documented in model card. No eval/import from scenario data.
+Policy config includes `family` with the four values above. Each actor has `id`, `name`, `strategy`, `member`, `declared_capacity`, `hidden_capacity`, `capability`, `safety`, `population`; other necessary values explicit with synthetic defaults. IDs unique, excluding reserved observation modes `public` and `truth`; 2..8 actors. Missing units and unknown units fail. All parameters documented in model card. No eval/import from scenario data.
 
 Action: normalized fractions `train`, `safety`, `service`, `idle` (sum 1, nonnegative), `conceal` (0..1), and boolean `appeal`, `inspect`, `renew`, `request_restart` choices. All physical actions run through one validated contract. A supplied invalid action results in a labeled no-action fallback and an event; malformed scenario fails before running.
 
@@ -62,7 +62,7 @@ Metrics must include `control_incidents`, `misuse_incidents`, `service_total`, `
 
 `artifacts.py`: canonical SHA256, atomically persist verified bundles; version/config/trace checks; local-only code/environment identity; `--public` export refuses private classification. Recorded actions reproduce runs offline. Checkpoint stores validated result prefix and config/action/digest identity; resume replays prefix deterministically and verifies before continuation. No pretend serialization of an unvalidated arbitrary Python object.
 
-`experiments.py`: compare policies across matched seeds; paired deltas and uncertainty (Monte Carlo only), not calibrated probability. Include all runs including terminal runs. Structural alternatives reported separately. Validate seed uniqueness, minimum counts and finite metrics. Batch manifests preserve completed items for resume; cancellation status explicit.
+`experiments.py`: compare policies across matched seeds; paired deltas and uncertainty (Monte Carlo only), not calibrated probability. Include all runs including terminal runs. Structural alternatives reported separately. Validate seed uniqueness, minimum counts and finite metrics. Batch manifests preserve completed items for resume; cancellation status explicit. Reports include `environment` runtime/source identity and per-run metrics/digests; `runs` entries are summaries, not complete replay bundles.
 
 HTTP binds `127.0.0.1:4318` only; reject nonlocal Host, foreign Origin, oversized JSON, filesystem traversal. Serve only bundled UI assets, never repository files. No accounts, cloud deployment, remote dependencies, analytics or arbitrary plugin uploads.
 

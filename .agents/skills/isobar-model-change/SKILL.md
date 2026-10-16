@@ -11,6 +11,7 @@ and `docs/mvp-contract.md` for its integration contract. Use paths from the repo
 1. Trace the change through input validation, scenario defaults, transition order,
    observation filtering, artifact replay, ensembles and UI labels. State the changed
    invariant and the evidence that would distinguish the old behavior from the new.
+   Actor IDs share the observation selector namespace: `public` and `truth` are reserved.
 2. Reproduce the behavior in a small synthetic scenario. Use the existing strict
    `Scenario` and `Action` models, keyed randomness and fixture helpers. Keep physical
    feasibility separate from obligations; an allegation is not a proven breach.
@@ -25,6 +26,9 @@ and `docs/mvp-contract.md` for its integration contract. Use paths from the repo
    Dynamics changes need a model-version decision; input/artifact changes need a schema
    compatibility decision. Never edit an old artifact to make replay pass. Document
    implementation fixes that preserve model semantics as such.
+   For an intended behavior-preserving change, compare complete canonical fixture
+   outputs before and after on the same runtime. Source edits still invalidate old
+   checkpoints for resumption; deterministic replay and resume are different checks.
 6. Follow `.agents/skills/isobar-verify/SKILL.md`. Finish with the synthetic evidence,
    assumptions affected, version decision and limits of the claim. A preferred policy
    winning the fixture is not a correctness criterion.

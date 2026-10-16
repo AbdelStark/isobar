@@ -1,6 +1,6 @@
 # MVP acceptance record
 
-Checked locally on 2026-10-16. Status: **software MVP and Earth iteration accepted locally** against
+Checked locally on 2026-10-16. Status: **software MVP, Earth iteration and validation hardening accepted locally** against
 [F1–F12 in the implementation contract](mvp-contract.md). All three gates in
 `make verify` pass: kernel/frontend checks, real-server browser workflows, and an
 isolated wheel installation. Scientific acceptance is a separate obligation below.
@@ -35,7 +35,7 @@ published race-game formula; they do not validate the dynamic model's equilibria
 
 ## Executed gates
 
-- `make verify`: 159 Python tests, eight frontend unit tests, thirteen real-server browser
+- `make verify`: 173 Python tests, eight frontend unit tests, thirteen real-server browser
   tests, Ruff, formatting, mypy, and TypeScript checking of app, tests and configs.
 - The package gate builds a fresh source archive/wheel and installs the wheel with
   hashed, locked runtime dependencies in a temporary Python 3.12 environment outside
@@ -54,10 +54,12 @@ published race-game formula; they do not validate the dynamic model's equilibria
 - `npm audit` (including development dependencies) and `pip-audit --disable-pip
   --no-deps` against the complete locked runtime export reported no known
   vulnerabilities on 2026-10-16. These are advisory checks, not security proofs.
-- Both repository skills pass the skill-creator frontmatter validator. Their commands
-  were exercised by the gates above; `AGENTS.md` links to the existing model/contract
-  sources instead of copying them. This is workflow validation, not a measured claim
-  about agent productivity.
+- All three repository skills pass the skill-creator frontmatter validator. The model
+  and verification workflows were exercised by the gates above; the documented
+  [experiment smoke check](research-foundations.md#workflow-smoke-check) saved and
+  regenerated 16 policy/seed runs across two conditions, checked environment identity,
+  and replay-verified full traces. `AGENTS.md` routes to the maintained sources and
+  [roadmap](roadmap.md). This is workflow validation, not a measured productivity claim.
 - CI uses pinned action commits, read-only repository permissions, a timeout, and the
   same `make verify` gate. Synthetic browser evidence is retained for 14 days. See
   [workflow runs](https://github.com/AbdelStark/isobar/actions/workflows/check.yml)
@@ -70,6 +72,33 @@ results matched a saved pre-refactor capture exactly on the development runtime.
 Model `isobar-reference-v1`, scenario schema 1 and
 artifact schema 1 remain unchanged. Source-identity checks still reject resuming
 checkpoints created by different code; complete artifacts remain replay-verified.
+
+## Public-workbench quality review
+
+The subsequent 2026-10-16 review reproduced three boundary defects before fixing them:
+actor IDs `public`/`truth` collided with observation modes, boolean/float artifact
+versions were accepted as integer 1, and malformed checkpoint environments raised
+an uncaught `AttributeError`. Model/artifact/batch regressions now reject these inputs;
+HTTP returns 422 for reserved actor IDs, and CLI resume exits 2 with an actionable
+error while preserving the input and leaving the output absent. The new regressions
+failed against the previous implementation, then passed with the validation fixes.
+
+Comparison reports now include runtime/source identity. The README describes their
+`runs` entries as metrics/digest summaries, rather than full replay bundles. The
+isolated-package gate also checks the wheel's MIT expression, license-file metadata
+and license contents. No new runtime dependency or agent-provider integration was added.
+
+All seven complete default fixture outputs matched canonical pre-change hashes on
+the same development runtime. Model `isobar-reference-v1`, scenario schema 1 and
+artifact schema 1 remain unchanged: equations, scheduling and valid run serialization
+are preserved; comparison `environment` metadata is additive. Validation is tighter:
+custom scenarios using reserved actor IDs must rename those actors and their references.
+Source identity changed, so existing checkpoints require their original code to resume;
+do not rewrite checkpoint identities to bypass that check.
+
+The roadmap records the next sensitivity study and separates software verification
+from independent methods review, new-reader usability and release publication. The
+smoke experiment is not the proposed study and does not satisfy those external gates.
 
 ## Measured reference performance
 

@@ -40,6 +40,8 @@ def test_complete_catalog_is_fresh_and_versioned():
         (("actors", 0, "strategy"), "eval"),
         (("actors", 0, "declared_capacity"), 0),
         (("actors", 0, "population"), 0),
+        (("actors", 0, "id"), "public"),
+        (("actors", 0, "id"), "truth"),
         (("assumptions",), []),
         (("actors",), []),
         (("units",), {}),

@@ -83,6 +83,22 @@ def test_environment_mismatch_blocks_resume():
         resume_bundle(bundle)
 
 
+@pytest.mark.parametrize("version", [True, 1.0, "1"])
+def test_artifact_version_requires_an_integer(version):
+    bundle = package_run(simulate(small_scenario()))
+    bundle["artifact_version"] = version
+    with pytest.raises(ValueError, match="version"):
+        verify_bundle(bundle)
+
+
+@pytest.mark.parametrize("metadata", [None, [], "invalid"])
+def test_malformed_environment_is_a_validation_error(metadata):
+    bundle = package_run(simulate(small_scenario(), stop_at=2))
+    bundle["environment"] = metadata
+    with pytest.raises(ValueError, match="environment"):
+        resume_bundle(bundle)
+
+
 def test_private_export_denied_and_classification_checked():
     raw = small_scenario().model_dump(mode="json")
     raw["classification"] = "private"

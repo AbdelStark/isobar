@@ -187,6 +187,8 @@ class Scenario(Contract):
         ids = [actor.id for actor in self.actors]
         if len(set(ids)) != len(ids):
             raise ValueError("actor IDs must be unique")
+        if {"public", "truth"}.intersection(ids):
+            raise ValueError("actor IDs public and truth are reserved observation modes")
         if (
             self.dynamics.false_allegation_actor is not None
             and self.dynamics.false_allegation_actor not in ids

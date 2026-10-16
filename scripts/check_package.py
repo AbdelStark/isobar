@@ -8,6 +8,8 @@ import re
 import subprocess
 import sys
 import tempfile
+import zipfile
+from email.parser import BytesParser
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -30,6 +32,15 @@ def main() -> None:
         command("uv", "build", "--out-dir", work / "dist", cwd=ROOT)
         wheels = list((work / "dist").glob("*.whl"))
         assert len(wheels) == 1
+        with zipfile.ZipFile(wheels[0]) as wheel:
+            metadata_path = next(
+                name for name in wheel.namelist() if name.endswith(".dist-info/METADATA")
+            )
+            metadata = BytesParser().parsebytes(wheel.read(metadata_path))
+            assert metadata["License-Expression"] == "MIT"
+            assert metadata["License-File"] == "LICENSE"
+            license_path = metadata_path.removesuffix("METADATA") + "licenses/LICENSE"
+            assert wheel.read(license_path) == (ROOT / "LICENSE").read_bytes()
         command(
             "uv",
             "export",

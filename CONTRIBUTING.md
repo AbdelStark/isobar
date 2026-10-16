@@ -24,8 +24,9 @@ README screenshots come from the real `world` fixture, seed 42. With `make serve
 running, run `cd web && node scripts/capture-readme.mjs` to regenerate the two images
 in `docs/assets/`. Review the images and keep their captions aligned with the run.
 
-Agents start at [AGENTS.md](AGENTS.md). The two repository skills cover model changes
-and verification, with detailed equations and contracts kept in the existing docs.
+Priorities and release criteria live in the [roadmap](docs/roadmap.md). Agents start
+at [AGENTS.md](AGENTS.md); the repository skills cover model changes, verification
+and experiments, with detailed equations and contracts kept in the existing docs.
 This follows the [native repository guidance and skill pattern](https://developers.openai.com/blog/skills-agents-sdk).
 The harness uses [Playwright accessibility scans](https://playwright.dev/docs/accessibility-testing)
 alongside keyboard, failure-recovery and real-kernel tests. Automated scans do not

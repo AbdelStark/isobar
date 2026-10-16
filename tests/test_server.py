@@ -83,6 +83,16 @@ def test_comparison_limits(local_server):
     assert b"20 seeds" in body
 
 
+@pytest.mark.parametrize("actor_id", ["public", "truth"])
+def test_actor_ids_cannot_alias_observation_modes(local_server, actor_id):
+    scenario = get_scenario("s2").model_dump(mode="json")
+    scenario["actors"][0]["id"] = actor_id
+    status, body, _ = request(local_server, "/api/run", {"scenario": scenario, "view": actor_id})
+    assert status == 422, body
+    assert b"reserved" in body
+    assert request(local_server, "/api/health")[0] == 200
+
+
 @pytest.mark.parametrize(
     "payload,headers,status",
     [

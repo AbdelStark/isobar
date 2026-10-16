@@ -1,6 +1,6 @@
 import pytest
 
-from isobar.artifacts import atomic_json, digest, read_json
+from isobar.artifacts import atomic_json, digest, environment, read_json
 from isobar.experiments import compare, summary, validate_comparison
 from isobar.models import Scenario
 from isobar.scenarios import get_scenario
@@ -25,6 +25,7 @@ def test_paired_comparison_uses_each_seed_and_exact_deltas():
     result = compare(scenario(), ["unrestricted", "freeze"], [7, 11, 13])
     assert result["status"] == "completed"
     assert result["paired"] is True
+    assert result["environment"] == environment()
     assert len(result["runs"]) == 6
     runs = {(r["policy"], r["seed"]): r for r in result["runs"]}
     expected = (
@@ -91,17 +92,35 @@ def test_invalid_numerics_are_not_silently_dropped(value):
         summary([1.0, value])
 
 
-@pytest.mark.parametrize("mutation", ["version", "config", "environment", "status", "metric"])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "version",
+        "bool_version",
+        "float_version",
+        "config",
+        "environment",
+        "null_environment",
+        "status",
+        "metric",
+    ],
+)
 def test_forged_batch_cache_is_rejected(tmp_path, mutation):
     checkpoint = tmp_path / "checkpoint.json"
     compare(scenario(), ["unrestricted", "freeze"], [1, 2], checkpoint=checkpoint, stop_after=1)
     saved = read_json(checkpoint)
     if mutation == "version":
         saved["artifact_version"] = 999
+    elif mutation == "bool_version":
+        saved["artifact_version"] = True
+    elif mutation == "float_version":
+        saved["artifact_version"] = 1.0
     elif mutation == "config":
         saved["config"] = {}
     elif mutation == "environment":
         saved["environment"]["python"] = "0.0"
+    elif mutation == "null_environment":
+        saved["environment"] = None
     elif mutation == "status":
         saved["status"] = "completed"
     else:

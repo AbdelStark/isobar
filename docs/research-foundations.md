@@ -102,3 +102,49 @@ They do not identify causal effects in observational human data. Private views a
 observation filters for research, not access control between remote participants.
 The [acceptance record](acceptance.md) separates software evidence from open scientific
 and usability obligations.
+
+## Workflow smoke check
+
+From a prepared checkout, this small two-condition experiment checks report saving,
+runtime provenance, paired coverage and regeneration of individual traces. Its four
+seeds establish workflow behavior, not a substantive result or adequate statistical
+precision. It writes only to a temporary directory and removes the artifacts on exit.
+Use a persistent, fresh directory and retain the protocol for an actual study.
+
+```sh
+uv run python - <<'PY'
+from copy import deepcopy
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from isobar.artifacts import atomic_json, environment, package_run, read_json, verify_bundle
+from isobar.engine import simulate
+from isobar.experiments import compare
+from isobar.models import Scenario
+from isobar.scenarios import get_scenario
+
+policies, seeds = ["unrestricted", "reciprocal"], [0, 1, 2, 3]
+with TemporaryDirectory(prefix="isobar-study-") as directory:
+    for false_positive_rate in (0.01, 0.10):
+        raw = get_scenario("s2").model_dump(mode="json")
+        raw["verification"]["false_positive_rate"] = false_positive_rate
+        scenario = Scenario.model_validate(raw)
+        report = compare(scenario, policies, seeds)
+        path = Path(directory) / f"fpr-{false_positive_rate}.json"
+        atomic_json(path, report, overwrite=False)
+        saved = read_json(path)
+        assert saved["environment"] == environment()
+        assert {(r["policy"], r["seed"]) for r in saved["runs"]} == {
+            (policy, seed) for policy in policies for seed in seeds
+        }
+        for row in saved["runs"]:
+            config = deepcopy(saved["config"]["scenario"])
+            config["policy"]["family"], config["seed"] = row["policy"], row["seed"]
+            run = simulate(Scenario.model_validate(config))
+            assert run["status"] == row["status"] in {"completed", "terminal"}
+            assert run["metrics"] == row["metrics"] and run["digests"] == row["digests"]
+            verify_bundle(package_run(run))
+        assert compare(scenario, policies, seeds) == saved
+        print(f"Verified {len(saved['runs'])} paired runs at false_positive_rate={false_positive_rate}")
+PY
+```

@@ -41,3 +41,16 @@ def test_invalid_preset_returns_actionable_error():
     result = cli("validate", "not-a-scenario")
     assert result.returncode == 2
     assert "scenario" in result.stderr.lower()
+
+
+def test_corrupt_checkpoint_fails_cleanly_without_writing_output(tmp_path):
+    partial, output = tmp_path / "partial.json", tmp_path / "resumed.json"
+    assert cli("run", "s2", "--stop-at", "1", "-o", partial).returncode == 0
+    bundle = json.loads(partial.read_text())
+    bundle["environment"] = None
+    partial.write_text(json.dumps(bundle))
+    before = partial.read_bytes()
+    result = cli("resume", partial, "-o", output)
+    assert result.returncode == 2
+    assert "environment" in result.stderr and "Traceback" not in result.stderr
+    assert not output.exists() and partial.read_bytes() == before

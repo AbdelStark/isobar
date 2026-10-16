@@ -65,6 +65,7 @@ def compare(
         previous = read_json(checkpoint)
         if (
             not isinstance(previous, dict)
+            or type(previous.get("artifact_version")) is not int
             or previous.get("artifact_version") != 1
             or previous.get("kind") != "isobar-batch"
         ):
@@ -75,8 +76,11 @@ def compare(
             or previous.get("config") != config
         ):
             raise ValueError("Batch checkpoint configuration or code mismatch.")
+        previous_environment = previous.get("environment", {})
+        if not isinstance(previous_environment, dict):
+            raise ValueError("Batch checkpoint environment must be an object.")
         for field in ("package", "python", "pydantic", "code_digest", "platform"):
-            if previous.get("environment", {}).get(field) != env[field]:
+            if previous_environment.get(field) != env[field]:
                 raise ValueError(f"Batch checkpoint environment {field} mismatch.")
         runs = previous.get("runs", {})
         expected_keys = {f"{policy}:{seed}" for policy in policies for seed in seeds}
@@ -122,6 +126,7 @@ def compare(
                     "completed_runs": len(runs),
                     "total_runs": total,
                     "config_digest": identity,
+                    "environment": env,
                     "note": "Partial batch, not a completed comparison.",
                 }
     baseline = policies[0]
@@ -163,6 +168,7 @@ def compare(
             )
     return {
         "model_version": "isobar-reference-v1",
+        "environment": env,
         "status": "completed",
         "paired": True,
         "view": "truth",

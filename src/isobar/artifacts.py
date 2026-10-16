@@ -87,7 +87,11 @@ def package_run(result: dict, *, public: bool = False) -> dict:
 
 
 def verify_bundle(bundle: dict, *, replay: bool = True, require_environment: bool = False) -> dict:
-    if not isinstance(bundle, dict) or bundle.get("artifact_version") != 1:
+    if (
+        not isinstance(bundle, dict)
+        or type(bundle.get("artifact_version")) is not int
+        or bundle.get("artifact_version") != 1
+    ):
         raise ValueError("Unsupported artifact version.")
     if bundle.get("kind") != "isobar-run" or not isinstance(bundle.get("result"), dict):
         raise ValueError("Expected an Isobar run bundle.")
@@ -100,6 +104,8 @@ def verify_bundle(bundle: dict, *, replay: bool = True, require_environment: boo
     if require_environment:
         current = environment()
         previous = bundle.get("environment", {})
+        if not isinstance(previous, dict):
+            raise ValueError("Checkpoint environment must be an object.")
         for field in ("package", "python", "pydantic", "code_digest"):
             if previous.get(field) != current[field]:
                 raise ValueError(f"Checkpoint {field} mismatch; create a new run instead.")

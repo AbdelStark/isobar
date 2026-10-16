@@ -130,7 +130,7 @@ uv run isobar replay runs/world.json --view public
 uv run isobar compare s2 --seeds 1 2 3 4 5 6 7 8 -o runs/reciprocity.json
 ```
 
-The comparison writes per-policy summaries, paired differences, per-group outcomes and the underlying runs. Its 95% normal-approximation intervals describe Monte Carlo variability **within the chosen model**; they exclude parameter and structural uncertainty. Small samples can give poor coverage.
+The comparison writes per-policy summaries, paired differences, per-group outcomes, runtime/source identity and per-run metrics/digests. These run summaries can be regenerated from the saved configuration; they are not replay bundles. Its 95% normal-approximation intervals describe Monte Carlo variability **within the chosen model**; they exclude parameter and structural uncertainty. Small samples can give poor coverage.
 
 - **Keyed randomness:** separate streams for processes and actors keep unrelated draws stable across interventions. A shared seed pairs exogenous draws, not necessarily realized events.
 - **Verified replay:** artifacts are checked by deterministic re-execution, including nested branch history. Output files are not overwritten.
@@ -168,6 +168,7 @@ Passing software tests establishes implementation behavior. Empirical calibratio
 | [Research foundations](docs/research-foundations.md) | Theory-to-implementation mapping and experimental discipline. |
 | [Python and HTTP contract](docs/mvp-contract.md) | Validated inputs, outputs and integration boundaries. |
 | [Contributing](CONTRIBUTING.md) | Development setup, model-change requirements and verification gates. |
+| [Roadmap](docs/roadmap.md) | Current priorities, the next research milestone and release criteria. |
 
 [Issues](https://github.com/AbdelStark/isobar/issues) are welcome for reproducible bugs, unclear assumptions and proposed experiments. Particularly useful contributions include sensitivity analyses, independently checked mechanisms, observation-boundary tests and teaching scenarios with clear provenance. A model change should include an assumption, a falsifiable implementation claim and a reproducer.
 

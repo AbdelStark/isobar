@@ -7,10 +7,15 @@ Synthetic fixture success is implementation evidence, never empirical policy val
 
 ## Navigate by task
 
+- Priorities, milestone planning or release completion: read
+  [the roadmap](docs/roadmap.md) and its evidence-based finish criteria.
 - Model, policy, strategy, observation or metric changes: use
   [isobar-model-change](.agents/skills/isobar-model-change/SKILL.md) before editing.
 - Runtime, UI, packaging, test or CI changes: use
   [isobar-verify](.agents/skills/isobar-verify/SKILL.md) to select and close verification.
+- Experiments, sensitivity analysis or interpretation: use
+  [isobar-experiment](.agents/skills/isobar-experiment/SKILL.md); keep the protocol
+  separate from results and software acceptance separate from scientific validity.
 - User workflows: [user guide](docs/user-guide.md). Equations, scheduling, units and
   metric denominators: [model card](docs/model-card.md). Artifact and HTTP trust
   boundaries: [SECURITY.md](SECURITY.md).
@@ -21,7 +26,9 @@ Synthetic fixture success is implementation evidence, never empirical policy val
 all state transitions and projections. `strategies.py` consumes actor observations.
 `artifacts.py` verifies and persists runs; `experiments.py` pairs policy comparisons.
 `cli.py` and `server.py` expose that same kernel. All Python modules are in `src/isobar/`.
-`web/src/main.ts` renders the workbench; `core.ts` holds pure input/display helpers;
+`decisions.py` reconstructs pre-action diagnostics through that same kernel.
+`web/src/main.ts` owns workbench state; `world.ts` renders Earth exploration;
+`core.ts` and `world-core.ts` hold pure display helpers; `ui.ts` owns DOM primitives.
 `style.css` owns the visual system. Python tests mirror modules; `web/tests/` uses
 the real local server. Reuse these boundaries instead of duplicating model logic in UI.
 

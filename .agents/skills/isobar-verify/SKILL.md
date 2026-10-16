@@ -7,16 +7,20 @@ description: Verify Isobar code changes or MVP readiness using the real kernel, 
 
 Run commands from the repository root. Read the diff and affected callers first;
 choose evidence for the behavior changed, not just the files edited.
+Start with the live branch, diff and processes. Reproduce a reported defect before
+fixing it; a validation change should also exercise its CLI or HTTP caller.
 
 - Python or frontend logic: run the relevant existing regression, then `make check`.
 - Workbench or HTTP behavior: run `make check-browser`. First-time browser setup is
   `make browser-setup`. The suite owns port 4318 and deliberately refuses to reuse a
   server; inspect an occupied port before stopping anything. It exercises built assets
   against the real kernel, not Vite or a mocked successful API.
+  Stop only a known development process; restore it afterward if it was being used.
 - Packaging, installation or release readiness: run `make check-package`. It builds a
   fresh source archive/wheel, installs locked runtime dependencies in a temporary venv,
   then checks the CLI lifecycle, bundled assets and HTTP export-to-CLI replay outside
-  the checkout. An editable installation alone cannot pass this requirement.
+  the checkout, including wheel license metadata. An editable installation alone
+  cannot pass this requirement.
 - Full MVP acceptance: `make verify` runs all three gates. Documentation-only edits
   need link/claim checks; rerun code only when they change a command or behavioral claim.
 
@@ -30,9 +34,17 @@ Keep generated screenshots, scans and traces in ignored output directories. The 
 uploads synthetic browser evidence for 14 days. Never introduce private scenarios into
 that suite. Use `web/playwright-report/` for local review; record links to exact-SHA CI
 runs when publishing an authorized change.
+The reviewed README images in `docs/assets/` are the deliberate exception: regenerate
+them with `web/scripts/capture-readme.mjs` against a current build and running server.
 
 Acceptance updates go in `docs/acceptance.md`: requirement → concrete test/runtime
 evidence → remaining boundary. Inspect tests to ensure they establish the requirement.
 Keep independent scientific review and human usability research separate from software
 acceptance. When a gate cannot run, report the failed command and observed blocker;
 leave that requirement unverified.
+
+For guidance or skill edits, check linked paths, validate skill frontmatter, and
+exercise the changed workflow on a small real scenario in a temporary directory.
+Frontmatter validation establishes discovery/format, not workflow effectiveness.
+For authorized publication, stage exact paths, verify local/remote commit equality,
+and inspect CI for that commit; an older green run is not evidence for the new patch.
