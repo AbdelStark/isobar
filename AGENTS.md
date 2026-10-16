@@ -7,6 +7,8 @@ Synthetic fixture success is implementation evidence, never empirical policy val
 
 ## Navigate by task
 
+- Interface design, interaction or visual copy: read the
+  [design context](CLAUDE.md#design-context) for audience, personality and principles.
 - Priorities, milestone planning or release completion: read
   [the roadmap](docs/roadmap.md) and its evidence-based finish criteria.
 - Model, policy, strategy, observation or metric changes: use
