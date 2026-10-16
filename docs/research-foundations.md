@@ -105,6 +105,10 @@ and usability obligations.
 
 ## Workflow smoke check
 
+For a complete worked example, see the [S2 monitoring sensitivity study](studies/s2-monitoring/README.md):
+a prospective protocol, four fixed conditions, all 160 runs replay-verified and
+generated per-policy/per-group tables. The small example below remains a mechanics check.
+
 From a prepared checkout, this small two-condition experiment checks report saving,
 runtime provenance, paired coverage and regeneration of individual traces. Its four
 seeds establish workflow behavior, not a substantive result or adequate statistical

@@ -17,7 +17,7 @@ on next. A green test suite alone does not complete a research study.
 | Exploration | Offline Earth view, trace inspection, decision explanations and branching use the real kernel. | New-reader usability has not been independently tested; map polish must not imply geopolitical calibration. |
 | Reproduction | Matched seeds, verified replay, resume, immutable outputs and an isolated package gate. | Validation needs adversarial inputs through callers, not only preset coverage. Reports must retain enough identity to reproduce them. |
 | Agent context | A short repository map and focused model/verification skills. | Current module ownership, experiment procedure and release finish criteria must stay discoverable as the project grows. |
-| Scientific communication | Model card, primary-source connections and explicit limits. | A worked, reproducible sensitivity study should connect those descriptions to an auditable result. |
+| Scientific communication | Model card, primary-source connections, explicit limits and a [reproduced S2 sensitivity study](studies/s2-monitoring/README.md). | Independent methods review and structural sensitivity remain open. |
 
 The quality review found and addressed reserved actor IDs colliding with view modes,
 loosely typed artifact versions and malformed checkpoint metadata escaping as
@@ -31,7 +31,16 @@ through the CLI/HTTP caller; inspect exported contents before describing them; a
 check guidance by using it. More documentation or more tests are useful only when
 they change a decision or catch a distinct failure.
 
-## Next milestone: one reference sensitivity study
+## Completed locally: one reference sensitivity study
+
+The [worked study](studies/s2-monitoring/README.md) now supplies the protocol,
+generator, four comparison reports, generated tables and eight selected full bundles.
+All 160 runs were regenerated and replay-verified in each of two fresh executions;
+all 14 generated files matched byte for byte. It exposes a service-comparison reversal
+and opposing group effects, without selecting a winning policy. This completes the
+worked research path locally; independent review remains the next external gate.
+
+The fixed design and finish criteria were:
 
 Question: **How do false-positive reports and correlated monitoring failures change
 the tradeoff between reciprocal pacing and unrestricted development in S2?**
@@ -65,7 +74,7 @@ mechanics only; it does not complete this study.
 | Gate | Completion evidence | Responsibility |
 |---|---|---|
 | Software contract | All F1–F12 evidence remains valid; `make verify` passes locally and on the exact published commit; wheel installation and license are checked outside the checkout. | Maintainer/automation |
-| Worked research path | The sensitivity study above can be reproduced from its protocol; published text/tables agree with retained artifacts. | Research contributor/maintainer |
+| Worked research path | Completed locally: the linked study reproduces its artifacts and tables in two fresh executions. Publication is separate. | Research contributor/maintainer |
 | Independent methods review | A reviewer checks scheduling, information boundaries, paired comparisons and interpretation; consequential findings are resolved or disclosed. | Independent reviewer and maintainer |
 | New-reader usability | Run the proposed five-participant exercise: install, run, inspect an actor view, branch, compare and explain one limitation. Record failures and resolve blockers. | Human participants and maintainer |
 | Release record | A versioned source/wheel release identifies its commit, changes, validated platforms and remaining limitations; the quickstart works from that distribution. | Maintainer |

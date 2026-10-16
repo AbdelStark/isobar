@@ -122,6 +122,11 @@ For externally generated decisions, pass `actions={"3:fra": action_dict}` to `si
 
 ## Reproducible experiments
 
+The [worked S2 sensitivity study](docs/studies/s2-monitoring/README.md) shows how shared
+monitoring failures reverse a service comparison in the synthetic model. Its fixed
+protocol, generated tables and 160 replay-verified runs expose both aggregate and
+per-group tradeoffs, with a command to reproduce every artifact.
+
 Run, verify and compare without opening a browser:
 
 ```sh

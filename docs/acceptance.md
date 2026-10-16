@@ -142,6 +142,25 @@ and do not measure decision-inspection reexecution.
 
 ## Scientific acceptance is separate
 
+The [S2 monitoring sensitivity study](studies/s2-monitoring/README.md) completes the
+roadmap's worked research path locally on 2026-10-16. Its prospective protocol fixes
+four monitoring conditions, two policies and seeds 0–19. Two fresh executions of
+`uv run --locked python scripts/sensitivity_study.py <fresh-directory>` each regenerated
+and replay-verified all 160 runs; `diff -r` found all 14 output files byte-identical.
+Four saved comparisons retain every seed, resolved scenario, per-run metrics/digests
+and runtime/source identity; eight prespecified seed-0 full bundles support inspection.
+The manifest identifies the kernel revision and hashes the generator/protocol/lock
+and every output. Tables are generated from saved reports, including missing
+denominators, valid-pair counts and all group outcomes.
+
+`make check` passed (173 Python tests, eight frontend tests, lint, formatting and type
+checks). Study self-checks verify input identity, run coverage, statuses, replay,
+means and denominators; deliberate missing-run, digest and sample-count corruption
+was rejected. Existing output was refused without changing its contents. Browser
+and isolated-package gates were not rerun for this script/documentation addition.
+Kernel, fixtures, model/schema versions and dependencies are unchanged. This is a
+reproducible synthetic result, not independent methods review or scientific validation.
+
 The implementation aggregates a state and its developer into one actor, uses binary
 compliance beliefs, synthetic scalar hazards and a budgeted institution. It omits
 independent strategic firms, bargaining, learned agent training, empirical calibration,
