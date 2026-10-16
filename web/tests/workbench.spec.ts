@@ -254,6 +254,23 @@ for (const width of [1440, 390]) {
     await page.locator('#ensemble-count').fill('2');
     await page.locator('#compare-run').click();
     await expect(page.locator('#status')).toContainText('Compared 4 policies');
+    const comparisonTable = page.getByRole('table', {name: 'Policy comparison and Monte Carlo uncertainty'});
+    await expect(comparisonTable.getByRole('columnheader', {name: 'Mean', exact: true})).toHaveCSS('text-align', 'right');
+    await expect(comparisonTable.locator('tbody tr').first().locator('td').first()).toHaveCSS('text-align', 'right');
+    const unavailable = page.locator('#outcomes tr').filter({has: page.getByRole('rowheader', {name: 'Successful appeals', exact: true})});
+    await expect(unavailable.locator('td').first()).toHaveText('Not available');
+    await expect(unavailable.locator('td').first()).toHaveCSS('text-align', 'right');
+    const chart = page.locator('.interval-plot');
+    await page.setViewportSize({width: width === 390 ? 768 : 390, height: 1000});
+    await expect.poll(() => chart.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      const readable = element.querySelector('text')!.getBoundingClientRect().height >= 12;
+      return readable && [...element.querySelectorAll('circle')].every(point => {
+        const box = point.getBoundingClientRect();
+        return box.left >= bounds.left && box.right <= bounds.right;
+      });
+    })).toBeTruthy();
+    await page.setViewportSize({width, height: 1000});
     await scan('truth-comparison');
     await page.locator('#advanced > summary').click();
     await expect(page.locator('#scenario-json')).not.toHaveValue('');

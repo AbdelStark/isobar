@@ -42,8 +42,9 @@ export function details(title: string, ...children: Child[]): HTMLDetailsElement
   return el('details', {}, el('summary', {}, title), ...children);
 }
 export function table(headers: string[], rows: unknown[][], caption: string): HTMLElement {
-  const node = el('table', {}, el('caption', { class: 'sr-only' }, caption), el('thead', {}, el('tr', {}, ...headers.map(h => el('th', { scope: 'col' }, h)))));
-  node.append(el('tbody', {}, ...rows.map(row => el('tr', {}, ...row.map((value, i) => el(i === 0 ? 'th' : 'td', i === 0 ? {scope: 'row'} : {}, format(value)))))));
+  const numeric = headers.map((_, i) => rows.some(row => typeof row[i] === 'number'));
+  const node = el('table', {}, el('caption', { class: 'sr-only' }, caption), el('thead', {}, el('tr', {}, ...headers.map((h, i) => el('th', { scope: 'col', class: numeric[i] ? 'numeric' : '' }, h)))));
+  node.append(el('tbody', {}, ...rows.map(row => el('tr', {}, ...row.map((value, i) => el(i === 0 ? 'th' : 'td', { ...(i === 0 ? {scope: 'row'} : {}), class: numeric[i] ? 'numeric' : '' }, format(value)))))));
   return el('div', { class: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': caption }, node);
 }
 export const pretty = (data: unknown) => el('pre', {}, el('code', {}, JSON.stringify(data, null, 2)));

@@ -17,6 +17,7 @@ let frameIndex = 0, view = 'public';
 let interventions: Intervention[] = [];
 let comparison: Comparison | null = null, comparisonMetric = 'service_total', comparisonMode = 'summaries';
 let comparisonScenario: Scenario | null = null;
+let comparisonResize: ResizeObserver | undefined;
 let busy = false, playing: ReturnType<typeof setInterval> | undefined;
 let world: WorldExplorer;
 
@@ -89,6 +90,7 @@ async function work(message: string, action: () => Promise<void>): Promise<void>
 }
 
 function clearComparison(): void {
+  comparisonResize?.disconnect();
   comparison = null; comparisonScenario = null;
   get('comparison-results').replaceChildren();
 }
@@ -125,7 +127,7 @@ function build(): void {
   app.replaceChildren(
     el('a', { href: '#workbench', class: 'skip-link' }, 'Skip to workbench'),
     el('header', { class: 'masthead' },
-      el('a', { href: '#', class: 'wordmark', 'aria-label': 'Isobar home' }, el('span', { class: 'brand-symbol', 'aria-hidden': 'true' }, '≋'), 'isobar'),
+      el('a', { href: '#', class: 'wordmark', 'aria-label': 'Isobar home' }, el('img', { class: 'brand-symbol', src: '/favicon.svg', alt: '', width: '40', height: '40' }), 'isobar'),
       el('div', { class: 'masthead-meta' }, el('span', {class: 'local-label'}, 'LOCAL RESEARCH WORKBENCH'), el('span', {}, 'Reference model / 01')),
     ),
     el('main', {},
@@ -417,6 +419,7 @@ async function compare(): Promise<void> {
 }
 function renderComparison(): void {
   if (!comparison) return;
+  comparisonResize?.disconnect();
   const available = Object.keys(comparison.summaries[0]?.metrics ?? {}).filter(key => metrics[key]);
   if (!available.includes(comparisonMetric)) comparisonMetric = available[0] ?? '';
   const summaries = comparisonMode === 'differences' ? comparison.differences : comparison.summaries;
@@ -438,25 +441,36 @@ function renderComparison(): void {
   );
   get('compare-metric').addEventListener('change', () => { comparisonMetric = get<HTMLSelectElement>('compare-metric').value; renderComparison(); get('compare-metric').focus(); });
   get('compare-mode').addEventListener('change', () => { comparisonMode = get<HTMLSelectElement>('compare-mode').value; renderComparison(); get('compare-mode').focus(); });
+  const container = get('comparison-results');
+  let width = container.clientWidth;
+  comparisonResize = new ResizeObserver(() => {
+    if (width === container.clientWidth) return;
+    width = container.clientWidth;
+    container.querySelector('.interval-plot')?.replaceWith(intervalPlot(rows));
+  });
+  comparisonResize.observe(container);
 }
 function intervalPlot(rows: Array<{policy: string; stats: Stats}>): SVGSVGElement {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
   const height = rows.length * 57 + 64;
-  svg.setAttribute('viewBox', `0 0 680 ${height}`);
+  const width = get('comparison-results').clientWidth;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', `${metrics[comparisonMetric]?.[0] ?? comparisonMetric} by policy. Values and intervals are in the following table.`);
   svg.classList.add('interval-plot');
   const [low, high] = intervalExtent(rows.map(row => row.stats));
-  const x = (value: number) => 152 + (value - low) / (high - low) * 464;
+  const inset = width < 500 ? 108 : 152;
+  const x = (value: number) => inset + (value - low) / (high - low) * (width - inset - 36);
   function shape(tag: string, attrs: Record<string, string>, text?: string): void {
     const node = document.createElementNS(ns, tag);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
     if (text) node.textContent = text;
     svg.append(node);
   }
-  for (let i = 0; i <= 4; i++) {
-    const value = low + (high - low) * i / 4;
+  const ticks = width < 500 ? 2 : 4;
+  for (let i = 0; i <= ticks; i++) {
+    const value = low + (high - low) * i / ticks;
     shape('line', {x1: String(x(value)), x2: String(x(value)), y1: '13', y2: String(height - 40), class: 'plot-grid'});
     shape('text', {x: String(x(value)), y: String(height - 14), 'text-anchor': 'middle', class: 'plot-tick'}, format(value));
   }

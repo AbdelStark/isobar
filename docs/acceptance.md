@@ -109,6 +109,27 @@ both. The pass also removes unused browser action state and the completed Earth 
 documents generated assets, and makes CI read the Node range from `web/package.json`.
 Locked dependency versions and Python model behavior are unchanged.
 
+## Workbench polish
+
+The 2026-10-16 interface pass preserves the paper-and-olive identity and model copy.
+It aligns paired controls and numeric table columns, enlarges disclosures and mobile
+inputs, distinguishes post-run truth beside the map, and repairs tablet sidebar
+spacing. Comparison charts reflow when their container changes width, retaining
+readable labels and all policy points. The masthead now uses the bundled wave mark.
+
+`make check` passed with 173 Python tests, eight frontend tests, lint, formatting and
+type checks. `make check-browser` passed all fifteen real-server Chromium tests,
+including axe scans, numeric/missing-value alignment, chart resizing, observation
+boundaries, recovery, branching and export. Setup, replay, decision and comparison
+captures covered 1440, 768, 390 and 320px; desktop, tablet and mobile renders were
+inspected. No page overflow was detected, and a long actor name also remained
+contained at 390px. Local confirmation captures are
+under `web/test-results/polish/`. The Impeccable mechanical scan reported no findings,
+and `web/scripts/capture-readme.mjs` refreshed the two reviewed README images.
+Packaging, other browser engines and physical touch devices were not rechecked in
+this interface-only pass. This is software/UI evidence, not human usability or
+scientific validation.
+
 ## Measured reference performance
 
 2026-10-16, Apple M4 Max, macOS arm64, Python 3.12.12. Sixty in-process runs: six

@@ -101,11 +101,13 @@ test('decision inspector respects privacy, recovers from failures and explains i
   await expect(page.locator('#decision-analysis')).toContainText('Train 0.2');
   await page.locator('#world-view').selectOption('public');
   await expect(page.locator('#world-view')).toHaveValue('public');
+  await expect(page.locator('#world-boundary')).not.toHaveClass(/truth-notice/);
   await expect(page.locator('#inspect-decision')).toBeDisabled();
   await expect(page.locator('#decision-analysis')).toBeEmpty();
   await expect(page.locator('#nation-inspector')).not.toContainText('Myopic choice');
   await page.locator('#world-view').selectOption('truth');
   await expect(page.locator('#world-boundary')).toContainText('POST-RUN TRUTH');
+  await expect(page.locator('#world-boundary')).toHaveClass(/truth-notice/);
   await page.locator('#nation-chn').click();
   await page.locator('#inspect-decision').click();
   await expect(page.locator('#decision-analysis')).toContainText('Decision at tick 1');

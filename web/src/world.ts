@@ -158,6 +158,7 @@ export class WorldExplorer {
     this.tickInput.value = String(state.frameIndex);
     this.tickOutput.textContent = state.run ? `${state.frameIndex} / ${this.tickInput.max}` : 'SETUP';
     this.runButton.textContent = state.run ? 'Run again' : 'Simulate world';
+    this.notice.classList.toggle('truth-notice', Boolean(state.run) && state.view === 'truth');
     this.notice.textContent = !state.run ? 'INITIAL CONDITIONS · Researcher setup. Run the scenario to watch the balance shift.'
       : state.view === 'truth' ? 'POST-RUN TRUTH · Includes hidden state. Values describe this synthetic run only.'
       : state.view === 'public' ? 'PUBLIC RECORD · Capability and safety are declared-work estimates. Private incentives and hidden allocations are withheld.'
